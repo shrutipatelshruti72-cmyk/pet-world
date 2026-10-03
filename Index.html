@@ -1,0 +1,5590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet World</title>
+<style>
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+:root {
+    --bg: #090b14;
+    --panel: #111522;
+    --panel2: #171b2b;
+    --border: #282e43;
+    --text: #f5f7ff;
+    --muted: #9299b2;
+    --purple: #8b5cf6;
+    --purple2: #6d3df5;
+    --green: #35d07f;
+    --yellow: #f5c451;
+    --red: #ff5d73;
+    --blue: #4da3ff;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(139,92,246,.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(77,163,255,.08), transparent 30%),
+        var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+button {
+    font-family: inherit;
+}
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+/* SIDEBAR */
+.sidebar {
+    width: 270px;
+    background: rgba(12,15,25,.96);
+    border-right: 1px solid var(--border);
+    padding: 22px 15px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
+}
+.logo {
+    font-size: 23px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 30px;
+}
+.logo span {
+    color: var(--purple);
+}
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.nav button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 13px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 15px;
+    transition: .2s;
+}
+.nav button:hover,
+.nav button.active {
+    background: rgba(139,92,246,.15);
+    color: white;
+}
+.creator {
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    text-align: center;
+}
+.creator small {
+    color: var(--muted);
+    display: block;
+    margin-bottom: 5px;
+}
+.creator strong {
+    color: var(--purple);
+}
+/* MAIN */
+.main {
+    margin-left: 270px;
+    width: calc(100% - 270px);
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 28px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: auto;
+}
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+}
+.page-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 7px;
+}
+.page-subtitle {
+    color: var(--muted);
+    margin-bottom: 25px;
+}
+/* CARDS */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+.card {
+    background: rgba(17,21,34,.92);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 20px;
+}
+.card-label {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 9px;
+}
+.card-value {
+    font-size: 26px;
+    font-weight: 800;
+}
+.card-value.purple {
+    color: var(--purple);
+}
+.card-value.green {
+    color: var(--green);
+}
+.card-value.yellow {
+    color: var(--yellow);
+}
+.card-value.red {
+    color: var(--red);
+}
+/* GAME */
+.game-box {
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+.score-big {
+    font-size: 55px;
+    font-weight: 900;
+}
+.score-label {
+    color: var(--muted);
+}
+.click-button {
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    border: 8px solid rgba(139,92,246,.25);
+    background: linear-gradient(145deg, var(--purple), var(--purple2));
+    color: white;
+    font-size: 34px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow:
+        0 20px 60px rgba(109,61,245,.3),
+        inset 0 0 30px rgba(255,255,255,.08);
+    transition: transform .08s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+.click-button:active {
+    transform: scale(.92);
+}
+.multiplier {
+    color: var(--muted);
+}
+.multiplier strong {
+    color: var(--purple);
+}
+.base-click {
+    color: var(--green);
+    font-weight: 800;
+}
+.potion-status {
+    min-height: 24px;
+    color: #6ee7a0;
+    font-weight: 700;
+}
+.potion-status.empty {
+    color: var(--muted);
+}
+/* ANTI AUTO-CLICKER */
+.anti-cheat-status {
+    min-height: 22px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+.anti-cheat-status.warning {
+    color: var(--red);
+}
+/* FLOATING */
+.float-click {
+    position: fixed;
+    pointer-events: none;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    animation: floatUp .8s ease-out forwards;
+    z-index: 999;
+}
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -80px) scale(1.2);
+    }
+}
+/* SECTIONS */
+.section {
+    margin-top: 22px;
+}
+.section-title {
+    font-size: 21px;
+    margin-bottom: 14px;
+}
+/* BUTTONS */
+.primary-btn {
+    border: 0;
+    background: var(--purple);
+    color: white;
+    padding: 11px 17px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: .2s;
+}
+.primary-btn:hover {
+    background: var(--purple2);
+    transform: translateY(-1px);
+}
+.primary-btn:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+    transform: none;
+}
+/* CRATES */
+.crates {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.crate {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+    text-align: center;
+}
+.crate-icon {
+    font-size: 58px;
+    margin-bottom: 12px;
+}
+.crate h3 {
+    margin-bottom: 7px;
+}
+.crate-price {
+    color: var(--yellow);
+    font-weight: 800;
+    margin: 10px 0;
+}
+.chances {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+    min-height: 60px;
+}
+/* POTION */
+.potion-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+.potion-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.potion-icon {
+    font-size: 55px;
+}
+.potion-info h3 {
+    margin-bottom: 5px;
+}
+.potion-info p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.potion-price {
+    color: var(--yellow);
+    font-weight: 800;
+    margin-top: 5px;
+}
+/* PETS */
+.pets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+.pet {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.pet-icon {
+    font-size: 42px;
+}
+.pet-info {
+    flex: 1;
+}
+.pet-name {
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+.pet-rarity {
+    font-size: 12px;
+    color: var(--muted);
+}
+.pet-multiplier {
+    color: var(--green);
+    font-weight: 800;
+    font-size: 13px;
+    margin-top: 5px;
+}
+.pet button {
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+/* MERGE */
+.merge-section {
+    margin-top: 22px;
+}
+.merge-info {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+.merge-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+.merge-card {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+.merge-card .pet-icon {
+    font-size: 38px;
+}
+.merge-card .pet-info {
+    flex: 1;
+}
+.merge-button {
+    border: 0;
+    background: var(--purple);
+    color: white;
+    padding: 9px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    font-weight: 800;
+}
+.merge-button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+@media (max-width: 700px) {
+    .merge-list {
+        grid-template-columns: 1fr;
+    }
+}
+/* ACHIEVEMENTS */
+.achievements {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+.achievement {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 15px;
+    padding: 18px;
+}
+.achievement.locked {
+    opacity: .45;
+}
+.achievement-icon {
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+.achievement p {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 5px;
+}
+/* REBIRTH */
+.rebirth-box {
+    border: 1px solid rgba(139,92,246,.4);
+    background:
+        radial-gradient(circle at top right, rgba(139,92,246,.15), transparent 45%),
+        var(--panel);
+}
+.rebirth-icon {
+    font-size: 65px;
+    margin-bottom: 12px;
+}
+.rebirth-title {
+    font-size: 25px;
+    font-weight: 900;
+    margin-bottom: 7px;
+}
+.rebirth-desc {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+.requirements {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+}
+.requirement {
+    padding: 15px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    border-radius: 12px;
+}
+.requirement-title {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+.requirement-value {
+    font-size: 20px;
+    font-weight: 800;
+}
+.requirement-value.complete {
+    color: var(--green);
+}
+.requirement-value.incomplete {
+    color: var(--red);
+}
+.rebirth-reward {
+    color: var(--yellow);
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+.warning {
+    color: var(--red);
+    font-size: 13px;
+    margin-top: 15px;
+}
+/* SETTINGS */
+.setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+}
+.setting:last-child {
+    border-bottom: 0;
+}
+.setting-info h3 {
+    margin-bottom: 5px;
+}
+.setting-info p {
+    color: var(--muted);
+    font-size: 13px;
+}
+.input {
+    background: var(--panel2);
+    color: white;
+    border: 1px solid var(--border);
+    outline: none;
+    padding: 11px 13px;
+    border-radius: 9px;
+    width: 220px;
+}
+.danger {
+    background: #3a1720;
+    color: #ff8798;
+    border: 1px solid #642635;
+    padding: 11px 15px;
+    border-radius: 9px;
+    cursor: pointer;
+}
+/* MODAL */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+.modal.show {
+    display: flex;
+}
+.modal-box {
+    width: 380px;
+    max-width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 30px;
+    text-align: center;
+    animation: modalIn .25s ease;
+}
+@keyframes modalIn {
+    from {
+        transform: scale(.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.modal-icon {
+    font-size: 85px;
+    margin: 15px 0;
+}
+.modal-rarity {
+    color: var(--purple);
+    font-weight: 800;
+    margin: 7px 0;
+}
+.modal-multiplier {
+    color: var(--green);
+    font-size: 20px;
+    font-weight: 900;
+    margin-bottom: 20px;
+}
+/* EMPTY */
+.empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 35px;
+    border: 1px dashed var(--border);
+    border-radius: 14px;
+}
+/* MOBILE */
+@media (max-width: 1000px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .crates,
+    .pets,
+    .achievements {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 700px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        bottom: auto;
+        position: fixed;
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .logo {
+        margin-bottom: 8px;
+        font-size: 19px;
+    }
+    .nav {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 5px;
+    }
+    .nav button {
+        white-space: nowrap;
+        font-size: 12px;
+        padding: 9px 11px;
+    }
+    .creator {
+        display: none;
+    }
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 100px 14px 25px;
+    }
+    .page-title {
+        font-size: 25px;
+    }
+    .cards,
+    .crates,
+    .pets,
+    .achievements {
+        grid-template-columns: 1fr;
+    }
+    .requirements {
+        grid-template-columns: 1fr;
+    }
+    .click-button {
+        width: 190px;
+        height: 190px;
+        font-size: 29px;
+    }
+    .score-big {
+        font-size: 43px;
+    }
+    .potion-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .setting {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .input {
+        width: 100%;
+    }
+}
+
+/* PET WORLD AUTH + MULTIPLAYER */
+.auth-screen{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at top,#1a2250,#070a13 60%);}
+body.auth-loading .auth-screen{display:flex;}
+body.auth-loading .app{display:flex;}
+.auth-box{width:430px;max-width:100%;background:rgba(17,21,34,.98);border:1px solid var(--border);border-radius:24px;padding:30px;box-shadow:0 25px 90px rgba(0,0,0,.45);}
+.auth-logo{font-size:34px;font-weight:900;text-align:center;margin-bottom:8px}.auth-sub{text-align:center;color:var(--muted);margin-bottom:22px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}.auth-tab{border:1px solid var(--border);background:var(--panel2);color:var(--muted);padding:11px;border-radius:10px;cursor:pointer;font-weight:800}.auth-tab.active{background:rgba(139,92,246,.2);color:#fff;border-color:var(--purple)}.auth-field{margin-bottom:13px}.auth-field label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}.auth-field input{width:100%;background:var(--panel2);color:#fff;border:1px solid var(--border);outline:none;padding:13px;border-radius:10px}.auth-message{min-height:20px;color:var(--red);font-size:13px;margin:10px 0}.auth-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:14px;text-align:center}.account-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border:1px solid var(--border);background:var(--panel);border-radius:14px;margin-bottom:18px}.account-name{font-weight:800}.account-status{color:var(--green);font-size:12px}.logout-btn{border:0;background:#2a3154;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:800}.multi-grid{display:grid;grid-template-columns:1.3fr .7fr;gap:18px}.chat-box{height:520px;display:flex;flex-direction:column}.chat-messages{flex:1;overflow:auto;padding:15px;display:flex;flex-direction:column;gap:9px}.chat-message{padding:9px 11px;border:1px solid var(--border);background:var(--panel2);border-radius:12px}.chat-message strong{color:#fff}.chat-message small{color:var(--muted);margin-left:7px}.chat-input-row{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border)}.chat-input-row input{flex:1;min-width:0;background:var(--panel2);color:#fff;border:1px solid var(--border);border-radius:10px;padding:12px}.online-list{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow:auto}.online-player{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:10px}.online-dot{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block;margin-right:7px;box-shadow:0 0 10px rgba(53,208,127,.6)}.transfer-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;margin-top:10px}.transfer-actions{margin-left:auto;display:flex;gap:7px}.secondary-btn{border:1px solid var(--border);background:var(--panel2);color:#fff;padding:9px 11px;border-radius:9px;cursor:pointer}.latest-pet{display:flex;align-items:center;gap:15px}.latest-pet-icon{font-size:55px}.send-modal-box{width:470px}.player-select{width:100%;background:var(--panel2);color:#fff;border:1px solid var(--border);padding:12px;border-radius:10px;margin:12px 0}.tiny-muted{font-size:12px;color:var(--muted)}
+@media(max-width:900px){.multi-grid{grid-template-columns:1fr}.chat-box{height:430px}}
+
+body {
+    overflow: hidden;
+}
+
+/* FINAL PET WORLD LAYOUT FIX */
+html, body {
+    width: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow: hidden;
+}
+
+.app {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 270px;
+    height: 100vh;
+    box-sizing: border-box;
+    z-index: 100;
+}
+
+.main {
+    position: relative;
+    display: block;
+    margin-left: 270px;
+    width: calc(100% - 270px);
+    height: 100vh;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding: 28px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 1;
+}
+
+.page {
+    position: relative;
+    width: 100%;
+}
+
+.page.active {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.page:not(.active) {
+    display: none !important;
+}
+
+
+/* FINAL DEFINITIVE LAYOUT */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100% !important;
+}
+body {
+    overflow: hidden !important;
+}
+.app {
+    display: grid !important;
+    grid-template-columns: 270px minmax(0, 1fr) !important;
+    width: 100% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+}
+.sidebar {
+    grid-column: 1 !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 270px !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+}
+.main {
+    grid-column: 2 !important;
+    position: relative !important;
+    display: block !important;
+    width: auto !important;
+    height: 100vh !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 28px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    z-index: 1 !important;
+}
+.main > .page {
+    width: 100% !important;
+    position: static !important;
+}
+.main > .page.active {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+.main > .page:not(.active) {
+    display: none !important;
+}
+
+
+/* FINAL MOBILE RESPONSIVE FIX */
+@media screen and (max-width: 700px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        min-height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .app {
+        display: grid !important;
+        grid-template-columns: 76px minmax(0, 1fr) !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+    }
+
+    .sidebar {
+        grid-column: 1 !important;
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: auto !important;
+        width: 76px !important;
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+        padding: 10px 5px !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        z-index: 1000 !important;
+    }
+
+    .logo {
+        display: block !important;
+        margin: 2px 0 12px !important;
+        font-size: 12px !important;
+        line-height: 1.1 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    .logo span {
+        display: inline !important;
+    }
+
+    .nav {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 5px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        max-height: calc(100dvh - 55px) !important;
+        scrollbar-width: none !important;
+    }
+
+    .nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav button {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 42px !important;
+        padding: 7px 2px !important;
+        margin: 0 !important;
+        font-size: 10px !important;
+        line-height: 1.15 !important;
+        text-align: center !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+        border-radius: 9px !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+
+    .creator {
+        display: none !important;
+    }
+
+    .main {
+        grid-column: 2 !important;
+        position: relative !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: 100dvh !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 18px 12px calc(24px + env(safe-area-inset-bottom)) !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: auto !important;
+    }
+
+    .main > .page,
+    .page {
+        display: none;
+        width: 100% !important;
+        max-width: 620px !important;
+        min-width: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .main > .page.active,
+    .page.active {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .page-title {
+        width: 100% !important;
+        font-size: clamp(22px, 7vw, 28px) !important;
+        line-height: 1.15 !important;
+        text-align: center !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .page-subtitle {
+        width: 100% !important;
+        text-align: center !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .cards,
+    .crates,
+    .pets,
+    .achievements,
+    .merge-list,
+    .requirements {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    .card,
+    .crate-card,
+    .pet-card,
+    .achievement,
+    .merge-card,
+    .requirement,
+    .rebirth-box,
+    .panel,
+    .multi-card,
+    .chat-panel {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .game-box {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 420px !important;
+        padding: 8px 0 20px !important;
+        text-align: center !important;
+    }
+
+    .click-button {
+        width: min(58vw, 190px) !important;
+        height: min(58vw, 190px) !important;
+        min-width: 150px !important;
+        min-height: 150px !important;
+        max-width: 190px !important;
+        max-height: 190px !important;
+        flex: 0 0 auto !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+
+    .score-big {
+        max-width: 100% !important;
+        font-size: clamp(34px, 11vw, 48px) !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .potion-card {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .setting {
+        min-width: 0 !important;
+        align-items: stretch !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .input,
+    input,
+    select,
+    textarea,
+    button {
+        max-width: 100% !important;
+    }
+
+    .input {
+        width: 100% !important;
+    }
+
+    .multi-grid {
+        width: 100% !important;
+        min-width: 0 !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    .chat-box {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: min(52dvh, 420px) !important;
+        min-height: 260px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+    }
+
+    .chat-input-row,
+    .transfer-form,
+    .transfer-actions {
+        width: 100% !important;
+        min-width: 0 !important;
+        flex-wrap: wrap !important;
+    }
+
+    img,
+    video,
+    canvas,
+    iframe {
+        max-width: 100% !important;
+    }
+
+    table {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+    }
+}
+
+@media screen and (max-width: 380px) {
+    .app {
+        grid-template-columns: 68px minmax(0, 1fr) !important;
+    }
+
+    .sidebar {
+        width: 68px !important;
+    }
+
+    .main {
+        padding-left: 9px !important;
+        padding-right: 9px !important;
+    }
+
+    .nav button {
+        font-size: 9px !important;
+        min-height: 40px !important;
+        padding-left: 1px !important;
+        padding-right: 1px !important;
+    }
+
+    .click-button {
+        min-width: 140px !important;
+        min-height: 140px !important;
+        width: 52vw !important;
+        height: 52vw !important;
+    }
+}
+
+/* PET BATTLES */
+.battle-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.battle-card-preview{margin:12px 0;padding:16px;border:1px solid var(--border);background:var(--panel2);border-radius:14px;min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center}.battle-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.battle-stat{padding:10px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.12)}.battle-stat strong{display:block;font-size:20px}.battle-request{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:13px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;margin-top:10px}.battle-request-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.battle-request-actions .player-select{margin:0;flex:1 1 100%;min-width:0}.battle-result{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}.battle-fighter{padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--panel2);text-align:center}.battle-vs{font-weight:900;font-size:22px;color:var(--purple)}.battle-log{margin-top:14px;padding:12px;background:rgba(0,0,0,.15);border-radius:12px;max-height:220px;overflow:auto;font-size:13px;line-height:1.5}.battle-warning{margin-top:10px;color:var(--red);font-weight:700;font-size:12px}.battle-win{color:var(--green);font-weight:900}.battle-loss{color:var(--red);font-weight:900}
+.active-battle{margin-top:18px}.battle-ground{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}.battle-side{padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--panel2);text-align:center}.battle-side .pet-icon{font-size:58px;line-height:1}.hp-wrap{margin-top:12px}.hp-label{display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:6px}.hp-bar{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid var(--border)}.hp-fill{height:100%;width:100%;transition:width .2s ease}.battle-turn{margin:14px 0;text-align:center;font-weight:900}.battle-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}.battle-actions button{min-width:150px;font-size:16px}.battle-action-hint{text-align:center;color:var(--muted);font-size:12px;margin-top:9px}.battle-live-log{margin-top:14px;max-height:240px;overflow:auto;padding:12px;border-radius:12px;background:rgba(0,0,0,.15);font-size:13px;line-height:1.55}.battle-action-disabled{opacity:.6;pointer-events:none}.battle-ended{padding:14px;border-radius:12px;text-align:center;font-weight:900;margin-top:14px}
+@media(max-width:900px){.battle-ground{grid-template-columns:1fr}.battle-actions button{width:100%;min-width:0}}
+
+@media(max-width:900px){.battle-grid{grid-template-columns:1fr}.battle-result{grid-template-columns:1fr}.battle-vs{padding:4px 0}.battle-request{grid-template-columns:1fr}.battle-request-actions{grid-column:auto}}
+
+
+
+/* PREMIUMS / COINS */
+.premium-card {
+    border: 1px solid rgba(139,92,246,.45);
+    background: linear-gradient(180deg, rgba(139,92,246,.09), rgba(17,21,34,.96));
+}
+.coin-balance {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    border-radius: 14px;
+    margin-bottom: 14px;
+}
+.coin-number {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--yellow);
+}
+.coin-rate {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+.coin-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+.coin-pack {
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    border-radius: 14px;
+    text-align: center;
+}
+.coin-pack .pack-amount {
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+.coin-pack .pack-price {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+.purchase-note {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+    margin-top: 14px;
+}
+.refund-policy {
+    border: 1px solid rgba(245,196,81,.28);
+    background: rgba(245,196,81,.06);
+    color: #e9dfc4;
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 14px;
+    font-size: 12px;
+    line-height: 1.55;
+}
+@media (max-width: 1100px) {
+    .coin-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 760px) {
+    .coin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* FINAL SIDEBAR / SETTINGS VISIBILITY FIX */
+.sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+.sidebar .nav {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    padding-right: 4px !important;
+}
+.sidebar .creator {
+    position: static !important;
+    flex: 0 0 auto !important;
+    margin-top: 12px !important;
+}
+@media screen and (max-width: 700px) {
+    .sidebar .nav {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+    }
+    .sidebar .creator {
+        display: none !important;
+    }
+}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="logo">
+        🐾 <span>Pet</span> World
+    </div>
+    <nav class="nav">
+        <button class="nav-btn active" data-page="dashboard">
+            🏠 Dashboard
+        </button>
+        <button class="nav-btn" data-page="game">
+            🖱️ Game
+        </button>
+        <button class="nav-btn" data-page="stats">
+            📊 Stats
+        </button>
+        <button class="nav-btn" data-page="crates">
+            📦 Crates
+        </button>
+        <button class="nav-btn" data-page="potions">
+            🧪 Potions
+        </button>
+        <button class="nav-btn" data-page="pet-index">
+            📖 Pet Index
+        </button>
+        <button class="nav-btn" data-page="rebirth">
+            ♻️ Rebirth
+        </button>
+        <button class="nav-btn" data-page="achievements">
+            🏆 Achievements
+        </button>
+        <button class="nav-btn" data-page="multiplayer">
+            🌎 Multiplayer
+        </button>
+        <button class="nav-btn" data-page="battles">
+            ⚔️ Battles
+        </button>
+        <button
+            class="nav-btn"
+            id="securityNavBtn"
+            data-page="security"
+            style="display:none;"
+        >
+            🛡️ Security
+        </button>
+        <button class="nav-btn" data-page="settings">
+            ⚙️ Settings
+        </button>
+    </nav>
+    <div class="creator">
+        <small>Created by</small>
+        <strong>z_ZXZ_z</strong>
+    </div>
+</aside>
+<main class="main">
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+    <h1 class="page-title">
+        Welcome, <span id="dashboardName">Player</span> 👋
+    </h1>
+    <p class="page-subtitle">
+        Build your pet collection, rebirth, merge, and play with everyone online.
+    </p>
+    <div class="cards">
+        <div class="card">
+            <div class="card-label">Current Clicks</div>
+            <div class="card-value purple" id="dashScore">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Best Score</div>
+            <div class="card-value yellow" id="dashBest">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Coins</div>
+            <div class="card-value yellow" id="dashCoins">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Pets</div>
+            <div class="card-value green" id="dashPets">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Rebirths</div>
+            <div class="card-value purple" id="dashRebirths">0</div>
+        </div>
+        <div class="card">
+            <div class="card-label">Pet Slots</div>
+            <div class="card-value green" id="dashPetSlots">5 / 5</div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            ⚡ Current Power
+        </div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;">
+                <div>
+                    <div class="card-label">
+                        Base Click
+                    </div>
+                    <div
+                        class="card-value green"
+                        id="dashBaseClick"
+                    >
+                        +1
+                    </div>
+                </div>
+                <div>
+                    <div class="card-label">
+                        Pet Multiplier
+                    </div>
+                    <div
+                        class="card-value purple"
+                        id="dashMultiplier"
+                    >
+                        1.00x
+                    </div>
+                </div>
+                <div>
+                    <div class="card-label">
+                        Rebirth Bonus
+                    </div>
+                    <div
+                        class="card-value yellow"
+                        id="dashRebirthBonus"
+                    >
+                        +0
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            🧪 Potions
+        </div>
+        <div class="card">
+            <p class="page-subtitle" style="margin:0 0 14px;">
+                Buy and manage your potions in the Potions page.
+            </p>
+            <button
+                class="primary-btn"
+                onclick="showPage('potions')"
+            >
+                🧪 Open Potion Shop
+            </button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            📖 Pet Index
+        </div>
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;">
+                <div>
+                    <div class="card-label">Pets Discovered</div>
+                    <div class="card-value green" id="dashPetIndex">0 / 14</div>
+                    <p class="page-subtitle" style="margin:6px 0 0;">See which pets you have and which are still missing.</p>
+                </div>
+                <button class="primary-btn" onclick="showPage('pet-index')">📖 Open Pet Index</button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- GAME -->
+<section id="game" class="page">
+    <h1 class="page-title">
+        Click Game 🖱️
+    </h1>
+    <p class="page-subtitle">
+        Click, earn, open crates and rebirth.
+    </p>
+    <div class="card game-box">
+        <div class="score-label">
+            YOUR CLICKS
+        </div>
+        <div class="score-big" id="gameScore">
+            0
+        </div>
+        <button
+            class="click-button"
+            id="clickButton"
+        >
+            CLICK
+        </button>
+        <div class="base-click">
+            Base: <span id="gameBaseClick">+1</span>
+        </div>
+        <div class="multiplier">
+            Pet Bonus:
+            <strong id="gameMultiplier">
+                1.00x
+            </strong>
+        </div>
+        <div
+            class="potion-status empty"
+            id="potionStatus"
+        >
+            Click Potion inactive
+        </div>
+        <div
+            class="anti-cheat-status"
+            id="antiCheatStatus"
+        >
+            🛡️ Anti auto-clicker active
+        </div>
+    </div>
+</section>
+<!-- STATS -->
+<section id="stats" class="page">
+    <h1 class="page-title">
+        Stats 📊
+    </h1>
+    <p class="page-subtitle">
+        Your progress and pet collection.
+    </p>
+    <div class="cards">
+        <div class="card">
+            <div class="card-label">
+                Total Clicks
+            </div>
+            <div
+                class="card-value purple"
+                id="statScore"
+            >
+                0
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-label">
+                Best Score
+            </div>
+            <div
+                class="card-value yellow"
+                id="statBest"
+            >
+                0
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-label">
+                Pets Owned
+            </div>
+            <div
+                class="card-value green"
+                id="statPets"
+            >
+                0
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-label">
+                Rebirths
+            </div>
+            <div
+                class="card-value purple"
+                id="statRebirths"
+            >
+                0
+            </div>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            🐾 Your Pets
+        </div>
+        <button class="primary-btn" id="equipBestBtn" onclick="equipBestPets()" style="margin-bottom:15px;">⭐ Equip Best</button>
+        <div id="petsContainer" class="pets"></div>
+    </div>
+    <div class="section merge-section">
+        <div class="section-title">
+            🧬 Pet Merging
+        </div>
+        <div class="card">
+            <div class="merge-info">
+                Combine <strong>2 identical pets</strong> to create a stronger <strong>Shiny</strong> version. <strong>Each merge costs 1,000 clicks.</strong>
+                The other pets stay in your collection. Equipped copies are automatically unequipped when merged.
+            </div>
+            <div id="mergeContainer" class="merge-list"></div>
+        </div>
+    </div>
+</section>
+<!-- CRATES -->
+<section id="crates" class="page">
+    <h1 class="page-title">
+        Crates 📦
+    </h1>
+    <p class="page-subtitle">
+        Spend clicks to discover new pets.
+    </p>
+    <div
+        class="crates"
+        id="cratesContainer"
+    ></div>
+    <div class="section">
+        <div class="section-title">
+            🧪 Click Potion
+        </div>
+        <div class="card potion-card">
+            <div class="potion-left">
+                <div class="potion-icon">
+                    🧪
+                </div>
+                <div class="potion-info">
+                    <h3>
+                        Click Potion
+                    </h3>
+                    <p>
+                        Doubles your current base click
+                        for <strong>4 minutes</strong>.
+                    </p>
+                    <div class="potion-price">
+                        Cost: 1,000 clicks
+                    </div>
+                </div>
+            </div>
+            <button
+                class="primary-btn"
+                id="buyPotionCrates"
+                onclick="buyPotion()"
+            >
+                Buy Potion
+            </button>
+        </div>
+    </div>
+</section>
+<!-- POTIONS -->
+<section id="potions" class="page">
+    <h1 class="page-title">
+        Potions 🧪
+    </h1>
+    <p class="page-subtitle">
+        Buy powerful boosts and manage your active potions.
+    </p>
+    <div class="section">
+        <div class="section-title">
+            🧪 Double Click Potion
+        </div>
+        <div class="card potion-card">
+            <div class="potion-left">
+                <div class="potion-icon">
+                    🧪
+                </div>
+                <div class="potion-info">
+                    <h3>
+                        Double Click Potion
+                    </h3>
+                    <p>
+                        Doubles your current base click
+                        for <strong>4 minutes</strong>.
+                    </p>
+                    <div class="potion-price">
+                        Cost: 1,000 clicks
+                    </div>
+                    <div
+                        class="potion-status empty"
+                        id="shopDoublePotionStatus"
+                    >
+                        Not Active
+                    </div>
+                </div>
+            </div>
+            <button
+                class="primary-btn"
+                id="buyPotionShop"
+                onclick="buyPotion()"
+            >
+                Buy Potion
+            </button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            🍀 Luck Potion
+        </div>
+        <div class="card potion-card">
+            <div class="potion-left">
+                <div class="potion-icon">
+                    🍀
+                </div>
+                <div class="potion-info">
+                    <h3>
+                        Luck Potion
+                    </h3>
+                    <p>
+                        Gives <strong>2× crate luck</strong>
+                        for <strong>50 seconds</strong>.
+                    </p>
+                    <div class="potion-price">
+                        Cost: 5,000 clicks
+                    </div>
+                    <div
+                        class="potion-status empty"
+                        id="luckPotionStatus"
+                    >
+                        Not Active
+                    </div>
+                </div>
+            </div>
+            <button
+                class="primary-btn"
+                id="buyLuckPotion"
+                onclick="buyLuckPotion()"
+            >
+                Buy Luck Potion
+            </button>
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            🔥 Triple Click Potion
+        </div>
+        <div class="card potion-card">
+            <div class="potion-left">
+                <div class="potion-icon">🔥</div>
+                <div class="potion-info">
+                    <h3>Triple Click Potion</h3>
+                    <p>Triples your current base click for <strong>4 minutes</strong>.</p>
+                    <div class="potion-price">Cost: 15,000 clicks</div>
+                    <div class="potion-status empty" id="triplePotionStatus">Not Active</div>
+                </div>
+            </div>
+            <button class="primary-btn" id="buyTriplePotion" onclick="buyTriplePotion()">Buy Triple Potion</button>
+        </div>
+    </div>
+</section>
+<!-- PET INDEX -->
+<section id="pet-index" class="page">
+    <h1 class="page-title">Pet Index 📖</h1>
+    <p class="page-subtitle">Track every pet. The Secret pet is currently ungettable and does not count toward completion.</p>
+    <div class="card" style="margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;">
+            <div>
+                <div class="card-label">Index Progress</div>
+                <div class="card-value green" id="petIndexProgress">0 / 14</div>
+            </div>
+        </div>
+    </div>
+    <div class="achievements" id="petIndexContainer"></div>
+</section>
+<!-- REBIRTH -->
+<section id="rebirth" class="page">
+    <h1 class="page-title">
+        Rebirth ♻️
+    </h1>
+    <p class="page-subtitle">
+        Reset your progress and become permanently stronger.
+    </p>
+    <div class="card rebirth-box">
+        <div class="rebirth-icon">
+            ♻️
+        </div>
+        <div class="rebirth-title">
+            Rebirth <span id="nextRebirthNumber">1</span>
+        </div>
+        <div class="rebirth-desc">
+            Rebirth resets your current progress, but your
+            Rebirth level stays forever. Each Rebirth increases
+            your base clicks by <strong>+1</strong>.
+        </div>
+        <div class="requirements">
+            <div class="requirement">
+                <div class="requirement-title">
+                    Click Requirement
+                </div>
+                <div
+                    class="requirement-value"
+                    id="rebirthClickRequirement"
+                >
+                    10,000
+                </div>
+                <div
+                    style="color:var(--muted);font-size:12px;margin-top:4px;"
+                    id="rebirthClickProgress"
+                >
+                    0 / 10,000
+                </div>
+            </div>
+            <div class="requirement">
+                <div class="requirement-title">
+                    Mythic Pet
+                </div>
+                <div
+                    class="requirement-value incomplete"
+                    id="rebirthMythicRequirement"
+                >
+                    ❌ Required
+                </div>
+                <div
+                    style="color:var(--muted);font-size:12px;margin-top:4px;"
+                >
+                    Own at least 1 Mythic pet
+                </div>
+            </div>
+        </div>
+        <div class="rebirth-reward">
+            ⚡ Reward: Base click becomes
+            <span id="rebirthNewBase">+2</span>
+        </div>
+        <button
+            class="primary-btn"
+            id="rebirthButton"
+            onclick="performRebirth()"
+            disabled
+            style="width:100%;font-size:16px;padding:14px;"
+        >
+            🔒 Requirements Not Met
+        </button>
+        <div class="warning">
+            ⚠️ Rebirth resets clicks, pets, equipped pets,
+            crates opened, potion and click progress.
+        </div>
+    </div>
+    <div class="section">
+        <div class="section-title">
+            📈 Rebirth Progress
+        </div>
+        <div class="card">
+            <div style="color:var(--muted);line-height:1.8;">
+                <div>
+                    ♻️ Current Rebirth:
+                    <strong
+                        style="color:white;"
+                        id="rebirthCurrent"
+                    >
+                        0
+                    </strong>
+                </div>
+                <div>
+                    ⚡ Current Base Click:
+                    <strong
+                        style="color:var(--green);"
+                        id="rebirthCurrentBase"
+                    >
+                        +1
+                    </strong>
+                </div>
+                <div>
+                    🎯 Next Requirement:
+                    <strong
+                        style="color:var(--yellow);"
+                        id="rebirthNextRequirement"
+                    >
+                        10,000
+                    </strong>
+                </div>
+                <div>
+                    🐾 Pet Slots:
+                    <strong style="color:var(--green);">
+                        ${5} before Rebirth 5, ${6} at Rebirth 5+
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ACHIEVEMENTS -->
+<section id="achievements" class="page">
+    <h1 class="page-title">
+        Achievements 🏆
+    </h1>
+    <p class="page-subtitle">
+        Complete milestones and show your progress.
+    </p>
+    <div
+        class="achievements"
+        id="achievementsContainer"
+    ></div>
+</section>
+<!-- SETTINGS -->
+
+<section id="multiplayer" class="page">
+    <h1 class="page-title">Pet World Multiplayer 🌎</h1>
+    <p class="page-subtitle">Global chat and send pets to other players.</p>
+
+    <div class="multi-grid">
+        <div class="card chat-box">
+            <div class="section-title">💬 Global Chat</div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-row">
+                <input id="chatInput" maxlength="250" placeholder="Message everyone..." onkeydown="if(event.key==='Enter')sendGlobalChat()">
+                <button class="primary-btn" type="button" onclick="sendGlobalChat()">Send</button>
+            </div>
+            <div class="tiny-muted" id="chatStatus">Connecting...</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">📤 Send a Pet</div>
+            <div style="display:grid;gap:10px;">
+                <select id="sendPetSelect" class="player-select">
+                    <option value="">Choose a pet...</option>
+                </select>
+                <select id="sendPetPlayer" class="player-select">
+                    <option value="">Choose a player...</option>
+                </select>
+                <button class="primary-btn" type="button" onclick="confirmSendPet()">📤 Send Pet</button>
+                <div id="sendPetStatus" class="tiny-muted"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📩 Incoming Pet Requests</div>
+        <div class="card" id="transferRequests">
+            <div class="empty">No pending pet requests.</div>
+        </div>
+    </div>
+</section>
+
+<section id="battles" class="page">
+    <h1 class="page-title">⚔️ Pet Battles</h1>
+    <p class="page-subtitle">Turn-based PvP. On your turn choose <strong>⚔️ Attack</strong> or <strong>❤️ Heal</strong>. Your pet's own strength determines the numbers.</p>
+    <div class="battle-grid">
+        <div class="card">
+            <div class="section-title">⚔️ Challenge</div>
+            <select id="battleOpponent" class="player-select">
+                <option value="">Choose an opponent...</option>
+            </select>
+            <select id="battleMyPet" class="player-select">
+                <option value="">Choose your pet...</option>
+            </select>
+            <div id="battleMyPreview" class="battle-card-preview">Choose your pet to preview Attack and Health.</div>
+            <button class="primary-btn" type="button" onclick="sendBattleChallenge()">⚔️ Challenge Player</button>
+            <div id="battleSendStatus" class="tiny-muted"></div>
+        </div>
+        <div class="card">
+            <div class="section-title">📩 Incoming Battles</div>
+            <div id="battleRequests"><div class="empty">No pending battle requests.</div></div>
+        </div>
+    </div>
+
+    <div id="activeBattlePanel" class="card active-battle" style="display:none;">
+        <div class="section-title">🏟️ PvP Ground</div>
+        <div id="activeBattleGround"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">🏆 Battle Result</div>
+        <div class="card" id="battleResultBox"><div class="empty">No battle completed yet.</div></div>
+    </div>
+</section>
+
+<section id="security" class="page">
+    <h1 class="page-title">
+        🛡️ ToolWorld Security
+    </h1>
+    <p class="page-subtitle">
+        Authorized security logs for Pet World connections.
+    </p>
+
+    <div class="card" id="securityAccessCard">
+        <div class="section-title">🔐 Security Access</div>
+        <div id="securityAccessStatus" class="tiny-muted">Checking authorization...</div>
+    </div>
+
+    <div class="card" id="securityLogsCard" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+                <div class="section-title" style="margin-bottom:4px;">👥 Player Connection Logs</div>
+                <div class="tiny-muted">
+                    Recent connection records. IP addresses are visible only to the authorized security account.
+                </div>
+            </div>
+            <button class="secondary-btn" type="button" onclick="loadSecurityLogs()">
+                🔄 Refresh Logs
+            </button>
+        </div>
+
+        <div id="securityLogsTableWrap" style="margin-top:16px;overflow:auto;">
+            <div id="securityLogs" class="tiny-muted">Loading security logs...</div>
+        </div>
+    </div>
+
+    <div class="card" id="securitySetupCard" style="display:none;">
+        <div class="section-title">⚙️ Admin Setup</div>
+        <p class="tiny-muted" style="line-height:1.6;">
+            This account is named <strong>P_10hP</strong>. The database also requires this account's Supabase Auth UUID to be explicitly allowlisted before security logs can be opened.
+        </p>
+        <button class="secondary-btn" type="button" onclick="copySecurityAdminId()" style="margin-top:10px;">
+            📋 Copy My Auth ID
+        </button>
+        <div id="securitySetupStatus" class="tiny-muted" style="margin-top:10px;"></div>
+    </div>
+</section>
+
+<section id="settings" class="page">
+    <h1 class="page-title">
+        Settings ⚙️
+    </h1>
+    <p class="page-subtitle">
+        Customize your game.
+    </p>
+    <div class="card">
+        <div class="setting">
+            <div class="setting-info">
+                <h3>
+                    Player Name
+                </h3>
+                <p>
+                    Change the name displayed on your dashboard.
+                </p>
+            </div>
+            <input
+                id="nameInput"
+                class="input"
+                maxlength="20"
+                placeholder="Player"
+            >
+        </div>
+        <div class="card premium-card" style="margin:4px 0 10px;padding:18px;">
+            <div class="section-title">💎 Premiums</div>
+            <p class="purchase-note" style="margin-top:0;">
+                Coins are the premium currency for future premium content.
+            </p>
+            <button
+                class="primary-btn"
+                type="button"
+                onclick="showPremiumStore()"
+            >
+                💎 Open Premium Store
+            </button>
+        </div>
+
+        <div class="card" style="margin:4px 0 10px;padding:18px;">
+            <div class="section-title">🌐 Player Information</div>
+            <p class="purchase-note" style="margin-top:0;">
+                Connection information for this device. It is displayed only to you in the game.
+            </p>
+
+            <div style="display:grid;gap:10px;margin-top:14px;">
+                <div class="setting" style="padding:12px 0;">
+                    <div class="setting-info">
+                        <h3>🌐 Public IP</h3>
+                        <p>Your current public internet address.</p>
+                    </div>
+                    <strong id="publicIpValue" style="font-family:monospace;">Checking...</strong>
+                </div>
+
+                <div class="setting" style="padding:12px 0;">
+                    <div class="setting-info">
+                        <h3>💻 Platform</h3>
+                        <p>Operating system/platform detected by your browser.</p>
+                    </div>
+                    <strong id="platformValue">Detecting...</strong>
+                </div>
+
+                <div class="setting" style="padding:12px 0;">
+                    <div class="setting-info">
+                        <h3>🌎 Browser</h3>
+                        <p>Browser detected from your current session.</p>
+                    </div>
+                    <strong id="browserValue">Detecting...</strong>
+                </div>
+            </div>
+
+            <button
+                class="secondary-btn"
+                type="button"
+                onclick="loadConnectionInfo()"
+                style="margin-top:14px;"
+            >
+                🔄 Refresh Connection Info
+            </button>
+
+            <div id="connectionInfoStatus" class="purchase-note" style="margin-top:10px;">
+                Loading connection information...
+            </div>
+        </div>
+
+        <div class="setting">
+            <div class="setting-info">
+                <h3>
+                    Save Data
+                </h3>
+                <p>
+                    Your progress is automatically stored in your Pet World account.
+                </p>
+            </div>
+            <span
+                style="color:var(--green);font-weight:700;"
+            >
+                ✓ Active
+            </span>
+        </div>
+        <div class="setting">
+            <div class="setting-info">
+                <h3>
+                    Reset Game
+                </h3>
+                <p>
+                    This permanently removes all progress from this account.
+                </p>
+            </div>
+            <button
+                class="danger"
+                onclick="resetGame()"
+            >
+                Reset Everything
+            </button>
+        </div>
+    </div>
+</section>
+
+<section id="premiums" class="page">
+    <h1 class="page-title">Premiums 💎</h1>
+    <p class="page-subtitle">Use your in-game clicks to buy Coins.</p>
+
+    <div class="card premium-card">
+        <div class="coin-balance">
+            <div>
+                <div class="card-label">Your Coins</div>
+                <div class="coin-number" id="premiumCoins">0</div>
+                <div class="coin-rate">🖱️ 1,000,000 Clicks = 🪙 1 Coin</div>
+            </div>
+            <button class="secondary-btn" type="button" onclick="convertOneCoin()">
+                🔄 Convert 1,000,000 Clicks → 1 Coin
+            </button>
+        </div>
+
+        <div class="section-title">🪙 Buy Coins</div>
+        <div class="coin-grid">
+            <div class="coin-pack">
+                <div class="pack-amount">🪙 1 Coin</div>
+                <div class="pack-price">1,000,000 Clicks</div>
+                <button class="primary-btn" type="button" onclick="buyCoinPack(1)">
+                    Buy 1 Coin
+                </button>
+            </div>
+            <div class="coin-pack">
+                <div class="pack-amount">🪙 10 Coins</div>
+                <div class="pack-price">10,000,000 Clicks</div>
+                <button class="primary-btn" type="button" onclick="buyCoinPack(10)">
+                    Buy 10 Coins
+                </button>
+            </div>
+            <div class="coin-pack">
+                <div class="pack-amount">🪙 50 Coins</div>
+                <div class="pack-price">50,000,000 Clicks</div>
+                <button class="primary-btn" type="button" onclick="buyCoinPack(50)">
+                    Buy 50 Coins
+                </button>
+            </div>
+            <div class="coin-pack">
+                <div class="pack-amount">🪙 100 Coins</div>
+                <div class="pack-price">100,000,000 Clicks</div>
+                <button class="primary-btn" type="button" onclick="buyCoinPack(100)">
+                    Buy 100 Coins
+                </button>
+            </div>
+        </div>
+
+        <div class="purchase-note">
+            🎮 In-game only. Buying Coins consumes Clicks from your Pet World account. No real money or payment provider is involved.
+        </div>
+    </div>
+</section>
+
+
+<!-- PREMIUM PURCHASE MODAL -->
+<div
+    class="modal"
+    id="premiumCheckoutModal"
+>
+    <div class="modal-box">
+        <div style="font-size:28px;margin-bottom:8px;">💎</div>
+        <h2 id="premiumCheckoutTitle">Coin Purchase</h2>
+        <p
+            id="premiumCheckoutText"
+            style="color:var(--muted);line-height:1.6;margin:12px 0 18px;white-space:pre-line;"
+        >
+            Your Coin purchase will be processed by Pet World.
+        </p>
+        <button
+            class="primary-btn"
+            type="button"
+            onclick="closePremiumCheckoutModal()"
+        >
+            Got it
+        </button>
+    </div>
+</div>
+
+<!-- CRATE MODAL -->
+<div
+    class="modal"
+    id="crateModal"
+>
+    <div class="modal-box">
+        <div>
+            🎉 New Pet!
+        </div>
+        <div
+            class="modal-icon"
+            id="modalIcon"
+        >
+            🐶
+        </div>
+        <h2 id="modalPetName">
+            Happy Dog
+        </h2>
+        <div
+            class="modal-rarity"
+            id="modalRarity"
+        >
+            Common
+        </div>
+        <div
+            class="modal-multiplier"
+            id="modalMultiplier"
+        >
+            1.10x
+        </div>
+        <div
+            id="modalBattleStats"
+            style="margin:8px 0 16px;color:var(--blue);font-weight:800;"
+        >
+            ⚔️ 0 Attack • ❤️ 0 Health
+        </div>
+        <button
+            class="primary-btn"
+            onclick="closeModal()"
+        >
+            Awesome!
+        </button>
+    </div>
+</div>
+</main>
+</div>
+
+<script>
+
+/* =========================================================
+   GLOBAL HELPERS
+========================================================= */
+function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = String(value ?? "");
+    return div.innerHTML;
+}
+
+/* =========================================================
+   PETS
+========================================================= */
+const PET_POOL = {
+    common: [
+        {
+            name: "Happy Dog",
+            icon: "🐶",
+            rarity: "Common",
+            multiplier: 1.10
+        },
+        {
+            name: "Cute Cat",
+            icon: "🐱",
+            rarity: "Common",
+            multiplier: 1.20
+        }
+    ],
+    uncommon: [
+        {
+            name: "Green Frog",
+            icon: "🐸",
+            rarity: "Uncommon",
+            multiplier: 1.30
+        },
+        {
+            name: "Little Panda",
+            icon: "🐼",
+            rarity: "Uncommon",
+            multiplier: 1.40
+        }
+    ],
+    rare: [
+        {
+            name: "Fox",
+            icon: "🦊",
+            rarity: "Rare",
+            multiplier: 1.50
+        },
+        {
+            name: "Penguin",
+            icon: "🐧",
+            rarity: "Rare",
+            multiplier: 1.60
+        }
+    ],
+    epic: [
+        {
+            name: "Dragon",
+            icon: "🐉",
+            rarity: "Epic",
+            multiplier: 1.80
+        },
+        {
+            name: "Phoenix",
+            icon: "🔥",
+            rarity: "Epic",
+            multiplier: 2.00
+        }
+    ],
+    legendary: [
+        {
+            name: "Golden Dragon",
+            icon: "🐲",
+            rarity: "Legendary",
+            multiplier: 2.50
+        },
+        {
+            name: "Golden Phoenix",
+            icon: "🌟",
+            rarity: "Legendary",
+            multiplier: 3.00
+        }
+    ],
+    mythic: [
+        {
+            name: "Cosmic Dragon",
+            icon: "🌌",
+            rarity: "Mythic",
+            multiplier: 4.00
+        },
+        {
+            name: "Galaxy Cat",
+            icon: "🌠",
+            rarity: "Mythic",
+            multiplier: 5.00
+        },
+        {
+            name: "Void Dragon",
+            icon: "🕳️",
+            rarity: "Mythic",
+            multiplier: 6.00,
+            dropChance: 5
+        }
+    ],
+    mythical: [
+        {
+            name: "Mythical Rumi",
+            icon: "🌟",
+            rarity: "Mythical",
+            multiplier: 8.00
+        }
+    ]
+};
+const BLACK_HAT_MAN = {
+    name: "BlackHatMan",
+    icon: "🕴️",
+    rarity: "Secret",
+    multiplier: 15.00,
+    attack: 150,
+    health: 1500,
+    shinyable: false,
+    obtainable: true
+};
+
+const WHITE_HAT_MAN = {
+    name: "WhiteHatMan",
+    icon: "🎩",
+    rarity: "Secret",
+    multiplier: 18.00,
+    attack: 180,
+    health: 1800,
+    shinyable: false,
+    obtainable: true
+};
+
+// Secret Chest odds:
+// 5% BlackHatMan
+// 1% WhiteHatMan
+// 94% randomly among all Mythic + Mythical pets.
+const SECRET_CHEST_MYTHIC_POOL = [
+    ...(PET_POOL.mythic || []),
+    ...(PET_POOL.mythical || [])
+];
+
+function rollSecretChestPet() {
+    const roll = Math.random() * 100;
+
+    if (roll < 5) {
+        return BLACK_HAT_MAN;
+    }
+
+    if (roll < 6) {
+        return WHITE_HAT_MAN;
+    }
+
+    if (!SECRET_CHEST_MYTHIC_POOL.length) {
+        return PET_POOL.mythical?.[0] || PET_POOL.mythic?.[0] || BLACK_HAT_MAN;
+    }
+
+    return SECRET_CHEST_MYTHIC_POOL[
+        Math.floor(Math.random() * SECRET_CHEST_MYTHIC_POOL.length)
+    ];
+}
+
+const BATTLE_RARITY_BONUS = {
+    Common: 0,
+    Uncommon: 4,
+    Rare: 9,
+    Epic: 16,
+    Legendary: 25,
+    Mythic: 36,
+    Mythical: 49,
+    Secret: 64
+};
+
+function getPetBattleStats(pet) {
+    const level = Math.max(1, Math.min(MAX_PET_LEVEL, Number(pet?.level) || 1));
+    const mergeLevel = Math.max(0, Number(pet?.mergeLevel) || 0);
+    const mult = Math.max(1, Number(pet?.multiplier) || 1);
+    const rarityBonus = BATTLE_RARITY_BONUS[pet?.rarity] || 0;
+    const baseAttack = Number(pet?.attack);
+    const baseHealth = Number(pet?.health);
+    const attack = Number.isFinite(baseAttack) && baseAttack > 0
+        ? Math.round(baseAttack + (level - 1) * 3 + mergeLevel * 6)
+        : Math.max(1, Math.round(mult * 10 + rarityBonus + (level - 1) * 3 + mergeLevel * 6));
+    const health = Number.isFinite(baseHealth) && baseHealth > 0
+        ? Math.round(baseHealth + (level - 1) * 30 + mergeLevel * 60)
+        : Math.max(20, Math.round(mult * 120 + rarityBonus * 10 + (level - 1) * 30 + mergeLevel * 60));
+    return { attack, health, level, mergeLevel };
+}
+
+function buildPetFromTemplate(template) {
+    return {
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        name: template.name,
+        icon: template.icon,
+        rarity: template.rarity,
+        multiplier: Number(template.multiplier) || 1,
+        attack: Number.isFinite(Number(template.attack)) ? Number(template.attack) : getPetBattleStats(template).attack,
+        health: Number.isFinite(Number(template.health)) ? Number(template.health) : getPetBattleStats(template).health,
+        shinyable: template.shinyable !== false,
+        level: 1,
+        exp: 0,
+        mergeLevel: 0
+    };
+}
+function getLuckAdjustedChances(chances) {
+    if (
+        !luckPotionActive()
+    ) {
+        return chances;
+    }
+    // Double the chance of every higher rarity and
+    // normalize the result back to 100%.
+    const weights =
+        chances.map(
+            ([rarity, chance], index) => {
+                const boost =
+                    index === 0
+                        ? 1
+                        : 2;
+                return [
+                    rarity,
+                    chance * boost
+                ];
+            }
+        );
+    const total =
+        weights.reduce(
+            (sum, item) => sum + item[1],
+            0
+        );
+    return weights.map(
+        ([rarity, weight]) => [
+            rarity,
+            (weight / total) * 100
+        ]
+    );
+}
+/* =========================================================
+   CRATES
+========================================================= */
+const CRATES = [
+    {
+        name: "Common Crate",
+        icon: "📦",
+        price: 200,
+        chances: [
+            ["Common", 100]
+        ],
+        rarityPool: [
+            "common"
+        ]
+    },
+    {
+        name: "Uncommon Crate",
+        icon: "🎁",
+        price: 500,
+        chances: [
+            ["Common", 70],
+            ["Uncommon", 30]
+        ],
+        rarityPool: [
+            "common",
+            "uncommon"
+        ]
+    },
+    {
+        name: "Rare Crate",
+        icon: "💎",
+        price: 1000,
+        chances: [
+            ["Common", 45],
+            ["Uncommon", 35],
+            ["Rare", 20]
+        ],
+        rarityPool: [
+            "common",
+            "uncommon",
+            "rare"
+        ]
+    },
+    {
+        name: "Epic Crate",
+        icon: "🔮",
+        price: 1500,
+        chances: [
+            ["Common", 35],
+            ["Uncommon", 30],
+            ["Rare", 22],
+            ["Epic", 13]
+        ],
+        rarityPool: [
+            "common",
+            "uncommon",
+            "rare",
+            "epic"
+        ]
+    },
+    {
+        name: "Legendary Crate",
+        icon: "👑",
+        price: 2000,
+        chances: [
+            ["Uncommon", 30],
+            ["Rare", 30],
+            ["Epic", 25],
+            ["Legendary", 15]
+        ],
+        rarityPool: [
+            "uncommon",
+            "rare",
+            "epic",
+            "legendary"
+        ]
+    },
+    {
+        name: "Mythic Crate",
+        icon: "🌌",
+        price: 5000,
+        chances: [
+            ["Rare", 30],
+            ["Epic", 30],
+            ["Legendary", 25],
+            ["Mythic", 10],
+            ["Mythical", 5]
+        ],
+        rarityPool: [
+            "rare",
+            "epic",
+            "legendary",
+            "mythic",
+            "mythical"
+        ]
+    },
+    {
+        name: "Super Crate",
+        icon: "🚀",
+        price: 10000,
+        chances: [
+            ["Epic", 20],
+            ["Legendary", 35],
+            ["Mythic", 35],
+            ["Mythical", 10]
+        ],
+        rarityPool: [
+            "epic",
+            "legendary",
+            "mythic",
+            "mythical"
+        ]
+    },
+    {
+        name: "Secret Chest",
+        icon: "🕴️",
+        price: 1000000,
+        special: "secret",
+        chances: [
+            ["BlackHatMan", 5],
+            ["WhiteHatMan", 1],
+            ["Mythic / Mythical", 94]
+        ]
+    }
+];
+/* =========================================================
+   REBIRTH REQUIREMENTS
+========================================================= */
+function getRebirthRequirement() {
+    const nextRebirth =
+        rebirths + 1;
+    /*
+        Rebirth 1 = 10,000
+        Rebirth 2 = 25,000
+        Rebirth 3 = 50,000
+        Rebirth 4 = 100,000
+        Rebirth 5 = 200,000
+        etc.
+    */
+    const requirements = [
+        10000,   // Rebirth 1
+        25000,   // Rebirth 2
+        50000,   // Rebirth 3
+        100000,  // Rebirth 4
+        200000   // Rebirth 5
+    ];
+    if (
+        nextRebirth <= requirements.length
+    ) {
+        return requirements[
+            nextRebirth - 1
+        ];
+    }
+    return (
+        requirements[
+            requirements.length - 1
+        ] *
+        Math.pow(
+            2,
+            nextRebirth - requirements.length
+        )
+    );
+}
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+const ACHIEVEMENTS = [
+    {
+        icon: "🖱️",
+        name: "First Steps",
+        description: "Reach 100 clicks.",
+        requirement: () => score >= 100
+    },
+    {
+        icon: "🔥",
+        name: "Clicker",
+        description: "Reach 1,000 clicks.",
+        requirement: () => score >= 1000
+    },
+    {
+        icon: "⚡",
+        name: "Click Master",
+        description: "Reach 10,000 clicks.",
+        requirement: () => score >= 10000
+    },
+    {
+        icon: "🐾",
+        name: "Pet Collector",
+        description: "Get your first pet.",
+        requirement: () => pets.length >= 1
+    },
+    {
+        icon: "🐾",
+        name: "Pet Hoarder",
+        description: "Own 5 pets.",
+        requirement: () => pets.length >= 5
+    },
+    {
+        icon: "⭐",
+        name: "Full Team",
+        description: "Equip 5 pets.",
+        requirement: () => equippedPets.length >= 5
+    },
+    {
+        icon: "🧪",
+        name: "Potion User",
+        description: "Use a Click Potion.",
+        requirement: () => potionUsed
+    },
+    {
+        icon: "📦",
+        name: "Crate Addict",
+        description: "Open 10 crates.",
+        requirement: () => cratesOpened >= 10
+    },
+    {
+        icon: "🌌",
+        name: "Mythic Discovery",
+        description: "Get a Mythic pet.",
+        requirement: () =>
+            pets.some(
+                p => p.rarity === "Mythic"
+            )
+    },
+    {
+        icon: "♻️",
+        name: "First Rebirth",
+        description: "Complete your first rebirth.",
+        requirement: () => rebirths >= 1
+    },
+    {
+        icon: "♻️",
+        name: "Rebirth Master",
+        description: "Reach 2 rebirths.",
+        requirement: () => rebirths >= 2
+    },
+    {
+        icon: "♻️",
+        name: "Rebirth Legend",
+        description: "Reach 3 rebirths.",
+        requirement: () => rebirths >= 3
+    }
+];
+const MAX_PET_LEVEL = 10;
+/* =========================================================
+   STATE
+========================================================= */
+let score =
+    Number(
+        localStorage.getItem(
+            "click_score"
+        )
+    ) || 0;
+let best =
+    Number(
+        localStorage.getItem(
+            "click_best"
+        )
+    ) || 0;
+let playerName =
+    localStorage.getItem(
+        "click_player_name"
+    ) || "Player";
+let coins =
+    Number(
+        localStorage.getItem(
+            "petworld_coins"
+        )
+    ) || 0;
+let pets =
+    JSON.parse(
+        localStorage.getItem(
+            "click_pets"
+        ) || "[]"
+    );
+let equippedPets =
+    JSON.parse(
+        localStorage.getItem(
+            "click_equipped"
+        ) || "[]"
+    );
+// Normalize saved pet data.
+// Maximum pet level is 10. Any level 11+ pet is removed immediately.
+pets = pets
+    .map(pet => ({
+        ...pet,
+        level: Math.floor(Number(pet.level) || 1),
+        mergeLevel: Number(pet.mergeLevel) || 0
+    }))
+    .filter(pet => pet.level >= 1 && pet.level <= MAX_PET_LEVEL);
+// Remove equipped references to pets that were deleted by the level cap.
+const validPetIds = new Set(pets.map(pet => pet.id));
+equippedPets = equippedPets.filter(id => validPetIds.has(id));
+// Save the cleanup immediately. Level 11/12+ pets cannot return from this save.
+localStorage.setItem("click_pets", JSON.stringify(pets));
+localStorage.setItem("click_equipped", JSON.stringify(equippedPets));
+let clickProgress =
+    Number(
+        localStorage.getItem(
+            "click_progress"
+        )
+    ) || 0;
+let cratesOpened =
+    Number(
+        localStorage.getItem(
+            "click_crates_opened"
+        )
+    ) || 0;
+let potionUsed =
+    localStorage.getItem(
+        "click_potion_used"
+    ) === "true";
+let potionEnd =
+    Number(
+        localStorage.getItem(
+            "click_potion_end"
+        )
+    ) || 0;
+let luckPotionEnd =
+    Number(
+        localStorage.getItem(
+            "click_luck_potion_end"
+        )
+    ) || 0;
+let potionType =
+    localStorage.getItem("click_potion_type") || "double";
+let triplePotionEnd =
+    Number(
+        localStorage.getItem("click_triple_potion_end")
+    ) || 0;
+// Achievement completion now gives nothing. Remove legacy reward state.
+localStorage.removeItem("click_permanent_luck");
+localStorage.removeItem("click_all_achievements_reward");
+let petIndexRewardClaimed = false;
+let unlimitedPotions = 0;
+let unlimitedPotionBonus = 0;
+let rebirths =
+    Number(
+        localStorage.getItem(
+            "click_rebirths"
+        )
+    ) || 0;
+// Secret-pet migration: the old Hydra / placeholder secret content is no longer part of this game build.
+pets = Array.isArray(pets)
+    ? pets.filter(pet => pet && pet.name !== "Hydra Dragon" && pet.name !== "???")
+        .map(pet => {
+            if (pet.name === "BlackHatMan" || pet.name === "WhiteHatMan") {
+                return { ...pet, shinyable: false };
+            }
+            return pet;
+        })
+    : [];
+
+/* =========================================================
+   SAVE
+========================================================= */
+function saveGame() {
+    localStorage.setItem(
+        "click_score",
+        score
+    );
+    localStorage.setItem(
+        "click_best",
+        best
+    );
+    localStorage.setItem(
+        "click_player_name",
+        playerName
+    );
+    localStorage.setItem(
+        "petworld_coins",
+        Math.max(0, Math.floor(coins))
+    );
+    localStorage.setItem(
+        "click_pets",
+        JSON.stringify(pets)
+    );
+    localStorage.setItem(
+        "click_equipped",
+        JSON.stringify(equippedPets)
+    );
+    localStorage.setItem(
+        "click_progress",
+        clickProgress
+    );
+    localStorage.setItem(
+        "click_crates_opened",
+        cratesOpened
+    );
+    localStorage.setItem(
+        "click_potion_used",
+        potionUsed
+    );
+    localStorage.setItem(
+        "click_potion_end",
+        potionEnd
+    );
+    localStorage.setItem(
+        "click_luck_potion_end",
+        luckPotionEnd
+    );
+    localStorage.setItem(
+        "click_potion_type",
+        potionType
+    );
+    localStorage.setItem(
+        "click_triple_potion_end",
+        triplePotionEnd
+    );
+    localStorage.setItem(
+        "click_pet_index_reward",
+        petIndexRewardClaimed
+    );
+    localStorage.setItem(
+        "click_unlimited_potions",
+        unlimitedPotions
+    );
+    localStorage.setItem(
+        "click_unlimited_potion_bonus",
+        unlimitedPotionBonus
+    );
+    localStorage.setItem(
+        "click_rebirths",
+        rebirths
+    );
+}
+/* =========================================================
+   COINS / PREMIUMS
+========================================================= */
+const CLICK_COIN_RATE = 1000000;
+
+function updateCoinUI() {
+    const safeCoins = Math.max(0, Math.floor(Number(coins) || 0));
+    coins = safeCoins;
+
+    const ids = ["dashCoins", "premiumCoins"];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = coins.toLocaleString();
+    });
+}
+
+function showPremiumStore() {
+    showPage("premiums");
+}
+
+// Keep inline HTML buttons working reliably.
+window.showPremiumStore = showPremiumStore;
+
+async function convertOneCoin() {
+    if (!currentUser || !cloudReady) {
+        alert("Please wait for your Pet World account to connect.");
+        return;
+    }
+
+    if (score < CLICK_COIN_RATE) {
+        alert(`You need ${CLICK_COIN_RATE.toLocaleString()} clicks to convert 1 Coin.`);
+        return;
+    }
+
+    const confirmed = confirm(
+        "Convert 1,000,000 clicks into 1 Coin?\n\n" +
+        "This will permanently remove 1,000,000 clicks from your balance.\n" +
+        "The conversion is confirmed by the Supabase database."
+    );
+
+    if (!confirmed) return;
+
+    const button = document.querySelector('[onclick="convertOneCoin()"]');
+    if (button) button.disabled = true;
+
+    try {
+        const { data, error } = await sb.rpc("convert_one_coin");
+
+        if (error) throw error;
+
+        score = Number(data?.remaining_clicks) || 0;
+        coins = Math.max(0, Math.floor(Number(data?.coins) || 0));
+
+        localSaveOnly();
+        updateUI();
+
+        alert("🪙 Conversion complete! You received 1 Coin.");
+    } catch (error) {
+        console.error("Coin conversion failed:", error);
+        alert("Coin conversion failed: " + (error.message || error));
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+async function buyCoinPack(amount) {
+    const pack = Math.max(1, Math.floor(Number(amount) || 0));
+    const allowed = [1, 10, 50, 100];
+    const clickCost = pack * CLICK_COIN_RATE;
+
+    if (!allowed.includes(pack)) {
+        alert("Invalid Coin pack.");
+        return;
+    }
+
+    if (!currentUser || !cloudReady) {
+        alert("Please wait for your Pet World account to connect.");
+        return;
+    }
+
+    if (score < clickCost) {
+        alert(`You need ${clickCost.toLocaleString()} clicks to buy ${pack} Coin${pack === 1 ? "" : "s"}.`);
+        return;
+    }
+
+    const confirmed = confirm(
+        `Buy ${pack.toLocaleString()} Coin${pack === 1 ? "" : "s"}?\n\n` +
+        `Cost: ${clickCost.toLocaleString()} clicks\n` +
+        `You currently have: ${score.toLocaleString()} clicks\n\n` +
+        "This purchase spends only in-game Clicks. No real money is involved. Continue?"
+    );
+
+    if (!confirmed) return;
+
+    const buttons = Array.from(document.querySelectorAll('.coin-pack button'));
+    buttons.forEach(btn => btn.disabled = true);
+
+    try {
+        const { data, error } = await sb.rpc("buy_coin_pack_with_clicks", {
+            p_pack_coins: pack
+        });
+
+        if (error) throw error;
+
+        score = Math.max(0, Number(data?.remaining_clicks) || 0);
+        coins = Math.max(0, Math.floor(Number(data?.coins) || 0));
+
+        localSaveOnly();
+        updateUI();
+
+        const title = document.getElementById("premiumCheckoutTitle");
+        const text = document.getElementById("premiumCheckoutText");
+        const modal = document.getElementById("premiumCheckoutModal");
+
+        if (title) title.textContent = `✅ ${pack} Coin${pack === 1 ? "" : "s"} Purchased`;
+        if (text) {
+            text.textContent =
+                `You spent ${clickCost.toLocaleString()} clicks and received ${pack} Coin${pack === 1 ? "" : "s"}.\n\n` +
+                `Coins: ${coins.toLocaleString()}\n` +
+                `Remaining clicks: ${score.toLocaleString()}`;
+        }
+        if (modal) modal.classList.add("show");
+    } catch (error) {
+        console.error("Coin pack purchase failed:", error);
+
+        const title = document.getElementById("premiumCheckoutTitle");
+        const text = document.getElementById("premiumCheckoutText");
+        const modal = document.getElementById("premiumCheckoutModal");
+
+        if (title) title.textContent = "❌ Purchase Failed";
+        if (text) text.textContent = error?.message || String(error);
+        if (modal) modal.classList.add("show");
+    } finally {
+        buttons.forEach(btn => btn.disabled = false);
+    }
+}
+
+window.convertOneCoin = convertOneCoin;
+window.buyCoinPack = buyCoinPack;
+
+function closePremiumCheckoutModal() {
+    const modal = document.getElementById("premiumCheckoutModal");
+    if (modal) modal.classList.remove("show");
+}
+
+/* =========================================================
+   BASE CLICK
+========================================================= */
+function getBaseClick() {
+    return 1 + rebirths;
+}
+/* =========================================================
+   PET MULTIPLIER
+========================================================= */
+function getMultiplier() {
+    let multiplier = 1;
+    for (
+        const petId of equippedPets
+    ) {
+        const pet =
+            pets.find(
+                p => p.id === petId
+            );
+        if (!pet)
+            continue;
+        multiplier += Math.max(
+            0,
+            pet.multiplier - 1
+        );
+    }
+    // Unlimited-duration potions earned from completing the Pet Index
+    // permanently add +1x click multiplier per potion.
+    multiplier += unlimitedPotionBonus;
+    return multiplier;
+}
+/* =========================================================
+   MYTHIC CHECK
+========================================================= */
+function hasMythic() {
+    return pets.some(
+        pet =>
+            pet.rarity === "Mythic"
+    );
+}
+/* =========================================================
+   POTION
+========================================================= */
+function potionActive() {
+    return potionEnd > Date.now() || triplePotionEnd > Date.now();
+}
+function getClickPotionMultiplier() {
+    if (triplePotionEnd > Date.now()) return 3;
+    if (potionEnd > Date.now()) return 2;
+    return 1;
+}
+function buyPotion() {
+    if (potionActive()) { alert("You already have an active Click Potion!"); return; }
+    if (score < 1000) { alert("You need 1,000 clicks to buy a Double Click Potion."); return; }
+    score -= 1000;
+    potionEnd = Date.now() + 240000;
+    triplePotionEnd = 0;
+    potionType = "double";
+    potionUsed = true;
+    saveGame();
+    updateUI();
+}
+function buyTriplePotion() {
+    if (potionActive()) { alert("You already have an active Click Potion!"); return; }
+    if (score < 15000) { alert("You need 15,000 clicks to buy a Triple Click Potion."); return; }
+    score -= 15000;
+    triplePotionEnd = Date.now() + 240000;
+    potionEnd = 0;
+    potionType = "triple";
+    potionUsed = true;
+    saveGame();
+    updateUI();
+}
+function updatePotion() {
+    const status = document.getElementById("potionStatus");
+    const doubleStatus = document.getElementById("shopDoublePotionStatus");
+    const tripleStatus = document.getElementById("triplePotionStatus");
+    const doubleButton = document.getElementById("buyPotionCrates");
+    const shopDoubleButton = document.getElementById("buyPotionShop");
+    const tripleButton = document.getElementById("buyTriplePotion");
+    const active = potionActive();
+    const end = triplePotionEnd > Date.now() ? triplePotionEnd : potionEnd;
+    const type = triplePotionEnd > Date.now() ? "triple" : "double";
+    if (active) {
+        const seconds = Math.ceil(Math.max(0, end - Date.now()) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        const time = `${minutes}:${String(secs).padStart(2, "0")}`;
+        const label = type === "triple" ? "🔥 Triple Click Potion" : "🧪 Double Click Potion";
+        if (status) { status.textContent = `${label} Active — ${time}`; status.classList.remove("empty"); }
+        if (doubleStatus) doubleStatus.textContent = type === "double" ? `Active — ${time}` : "Blocked while another click potion is active";
+        if (tripleStatus) tripleStatus.textContent = type === "triple" ? `Active — ${time}` : "Blocked while another click potion is active";
+        if (doubleButton) { doubleButton.disabled = true; doubleButton.textContent = "Active"; }
+        if (shopDoubleButton) { shopDoubleButton.disabled = true; shopDoubleButton.textContent = "Active"; }
+        if (tripleButton) { tripleButton.disabled = true; tripleButton.textContent = "Active"; }
+    } else {
+        if (potionEnd !== 0 || triplePotionEnd !== 0) { potionEnd = 0; triplePotionEnd = 0; saveGame(); }
+        if (status) { status.textContent = "Click Potion inactive"; status.classList.add("empty"); }
+        if (doubleStatus) { doubleStatus.textContent = "Not Active"; doubleStatus.classList.add("empty"); }
+        if (tripleStatus) { tripleStatus.textContent = "Not Active"; tripleStatus.classList.add("empty"); }
+        if (doubleButton) { doubleButton.disabled = score < 1000; doubleButton.textContent = score < 1000 ? "Need 1,000 Clicks" : "Buy Potion"; }
+        if (shopDoubleButton) { shopDoubleButton.disabled = score < 1000; shopDoubleButton.textContent = score < 1000 ? "Need 1,000 Clicks" : "Buy Potion"; }
+        if (tripleButton) { tripleButton.disabled = score < 15000; tripleButton.textContent = score < 15000 ? "Need 15,000 Clicks" : "Buy Triple Potion"; }
+    }
+}
+/* =========================================================
+   LUCK POTION
+========================================================= */
+function luckPotionActive() {
+    return luckPotionEnd >
+        Date.now();
+}
+function buyLuckPotion() {
+    if (
+        luckPotionActive()
+    ) {
+        alert(
+            "You already have an active Luck Potion!"
+        );
+        return;
+    }
+    if (
+        score < 10000
+    ) {
+        alert(
+            "You need 5,000 clicks to buy a Luck Potion."
+        );
+        return;
+    }
+    score -=
+        5000;
+    luckPotionEnd =
+        Date.now() +
+        50000;
+    saveGame();
+    updateUI();
+}
+function updateLuckPotion() {
+    const status =
+        document.getElementById(
+            "luckPotionStatus"
+        );
+    const button =
+        document.getElementById(
+            "buyLuckPotion"
+        );
+    const gameStatus =
+        document.getElementById(
+            "shopDoublePotionStatus"
+        );
+    if (
+        luckPotionActive()
+    ) {
+        const remaining =
+            Math.max(
+                0,
+                luckPotionEnd -
+                Date.now()
+            );
+        const seconds =
+            Math.ceil(
+                remaining / 1000
+            );
+        if (status) {
+            status.textContent =
+                `🍀 Luck Potion Active — ${seconds}s`;
+            status.classList.remove(
+                "empty"
+            );
+        }
+        if (button) {
+            button.disabled =
+                true;
+            button.textContent =
+                "Active";
+        }
+    } else {
+        if (
+            luckPotionEnd !== 0
+        ) {
+            luckPotionEnd =
+                0;
+            saveGame();
+        }
+        if (status) {
+            status.textContent =
+                "Not Active";
+            status.classList.add(
+                "empty"
+            );
+        }
+        if (button) {
+            button.disabled =
+                score < 10000;
+            button.textContent =
+                score < 10000
+                    ? "Need 5,000 Clicks"
+                    : "Buy Luck Potion";
+        }
+    }
+}
+/* =========================================================
+   ANTI AUTO-CLICKER
+========================================================= */
+// Anti auto-clicker:
+// - Up to 5 clicks in any rolling 1-second window are accepted.
+// - The 6th+ click within that window is simply DECLINED.
+// - No cooldown.
+// - No punishment.
+// - No warning popup/message.
+// - The player can keep playing normally once the rolling window moves.
+let antiCheatClickTimes = [];
+function antiAutoClickCheck() {
+    const now =
+        performance.now();
+    // Keep only clicks from the last 1000ms.
+    antiCheatClickTimes =
+        antiCheatClickTimes.filter(
+            time => now - time < 1000
+        );
+    // Already at 5 clicks in the current second:
+    // simply reject this click. Nothing else happens.
+    if (
+        antiCheatClickTimes.length >= 5
+    ) {
+        return false;
+    }
+    antiCheatClickTimes.push(now);
+    return true;
+}
+/* =========================================================
+   CLICK
+========================================================= */
+function doClick(event) {
+    if (!antiAutoClickCheck()) {
+        return;
+    }
+    const base =
+        getBaseClick();
+    const multiplier =
+        getMultiplier();
+    /*
+        Normal:
+        base × pet multiplier
+        Potion:
+        base × 2 × pet multiplier
+    */
+    const potionMultiplier = getClickPotionMultiplier();
+    clickProgress +=
+        base *
+        potionMultiplier *
+        multiplier;
+    const earned =
+        Math.floor(
+            clickProgress
+        );
+    clickProgress -=
+        earned;
+    if (
+        earned > 0
+    ) {
+        score +=
+            earned;
+        if (
+            score > best
+        ) {
+            best = score;
+        }
+    }
+    saveGame();
+    updateUI();
+    if (earned > 0) {
+        createFloatingText(
+            event,
+            `+${earned}`
+        );
+    }
+}
+/* =========================================================
+   FLOATING TEXT
+========================================================= */
+function createFloatingText(
+    event,
+    text
+) {
+    const el =
+        document.createElement(
+            "div"
+        );
+    el.className =
+        "float-click";
+    el.textContent =
+        text;
+    let x =
+        window.innerWidth / 2;
+    let y =
+        window.innerHeight / 2;
+    if (
+        event &&
+        event.clientX
+    ) {
+        x =
+            event.clientX;
+        y =
+            event.clientY;
+    }
+    el.style.left =
+        x + "px";
+    el.style.top =
+        y + "px";
+    document.body.appendChild(
+        el
+    );
+    setTimeout(
+        () => el.remove(),
+        800
+    );
+}
+/* =========================================================
+   NAVIGATION
+========================================================= */
+function showPage(pageId) {
+    if (pageId === "security" && typeof securityAdmin !== "undefined" && !securityAdmin) {
+        const status = document.getElementById("securityAccessStatus");
+        if (status) status.textContent = "🔒 Security access denied.";
+        return;
+    }
+
+    const targetPage = document.getElementById(pageId);
+    if (!targetPage) return;
+
+    // Update sidebar state when a real nav button exists.
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === pageId);
+    });
+
+    // Hide every page.
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+        page.style.display = "none";
+    });
+
+    // Show the requested page directly. This also works for pages
+    // that are opened from inside another page, such as Premiums.
+    targetPage.classList.add("active");
+    targetPage.style.display = "block";
+
+    const mainScroller = document.querySelector(".main");
+    if (mainScroller) {
+        mainScroller.scrollTop = 0;
+        mainScroller.scrollLeft = 0;
+    }
+
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+    updateUI();
+}
+document
+    .querySelectorAll(
+        ".nav-btn"
+    )
+    .forEach(
+        button => {
+            button.addEventListener(
+                "click",
+                () => {
+                    document
+                        .querySelectorAll(
+                            ".nav-btn"
+                        )
+                        .forEach(
+                            btn =>
+                                btn.classList.remove(
+                                    "active"
+                                )
+                        );
+                    button.classList.add(
+                        "active"
+                    );
+                    document
+                        .querySelectorAll(
+                            ".page"
+                        )
+                        .forEach(page => {
+                            page.classList.remove("active");
+                            page.style.display = "none";
+                        });
+                    const targetPage = document.getElementById(button.dataset.page);
+                    if (targetPage) {
+                        targetPage.classList.add("active");
+                        targetPage.style.display = "block";
+                    }
+
+                    /*
+                     * Reset BOTH the browser scroll and the document
+                     * scroll position. The game uses the window as the
+                     * main scrolling container.
+                     */
+                    const mainScroller = document.querySelector(".main");
+
+                    if (mainScroller) {
+                        mainScroller.scrollTop = 0;
+                        mainScroller.scrollLeft = 0;
+                    }
+
+                    window.scrollTo(0, 0);
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+
+                    updateUI();
+
+                    requestAnimationFrame(() => {
+                        if (mainScroller) {
+                            mainScroller.scrollTop = 0;
+                            mainScroller.scrollLeft = 0;
+                        }
+                        window.scrollTo(0, 0);
+                    });
+                }
+            );
+        }
+    );
+/* =========================================================
+   CRATES
+========================================================= */
+function renderCrates() {
+    const container = document.getElementById("cratesContainer");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    CRATES.forEach((crate, index) => {
+        const chanceText = (crate.chances || [])
+            .map(c => `${c[0]}: ${c[1]}%`)
+            .join("<br>");
+
+        const card = document.createElement("div");
+        card.className = "crate";
+
+        const note = crate.special === "secret"
+            ? `<div style="margin-top:9px;color:var(--red);font-weight:800;">🕴️ 5% BlackHatMan • 🎩 1% WhiteHatMan<br>94% Mythic / Mythical • 🚫 Secret pets unshinyable</div>`
+            : "";
+
+        card.innerHTML = `
+            <div class="crate-icon">${crate.icon}</div>
+            <h3>${crate.name}</h3>
+            <div class="crate-price">💰 ${crate.price.toLocaleString()} clicks</div>
+            <div class="chances">${chanceText}</div>
+            ${note}
+            <button class="primary-btn" onclick="openCrate(${index})" ${score < crate.price ? "disabled" : ""}>
+                ${score < crate.price ? "Not Enough Clicks" : "Open Chest"}
+            </button>`;
+
+        container.appendChild(card);
+    });
+}
+
+function rollRarity(crate) {
+    // Luck works by boosting every rarity except the first/base rarity,
+    // then normalizing the weights back to 100%.
+    const luckMultiplier =
+        luckPotionActive() ? 2 : 1;
+    const chances = crate.chances.map(
+        ([rarity, chance], index) => [
+            rarity,
+            index === 0
+                ? chance
+                : chance * luckMultiplier
+        ]
+    );
+    const totalWeight = chances.reduce(
+        (sum, chance) => sum + chance[1],
+        0
+    );
+    const random =
+        Math.random() * totalWeight;
+    let total = 0;
+    for (const chance of chances) {
+        total += chance[1];
+        if (random <= total) {
+            return chance[0].toLowerCase();
+        }
+    }
+    return crate.rarityPool[0];
+}
+/* =========================================================
+   OPEN CRATE
+========================================================= */
+function openCrate(index) {
+    const crate = CRATES[index];
+    if (!crate) return;
+    if (score < crate.price) { alert("Not enough clicks!"); return; }
+    score -= crate.price;
+    cratesOpened++;
+
+    let template;
+    if (crate.special === "secret") {
+        template = rollSecretChestPet();
+    } else {
+        const rarity = rollRarity(crate);
+        const pool = PET_POOL[rarity] || PET_POOL.common;
+        if (rarity === "mythic" && Math.random() < 0.05) {
+            template = pool.find(pet => pet.name === "Void Dragon") || pool[0];
+        } else {
+            const sourcePool = pool.filter(pet => pet.name !== "Void Dragon");
+            const usable = sourcePool.length ? sourcePool : pool;
+            template = usable[Math.floor(Math.random() * usable.length)];
+        }
+    }
+
+    const pet = buildPetFromTemplate(template);
+    pets.push(pet);
+    saveGame();
+    showPetModal(pet);
+    updateUI();
+}
+
+/* =========================================================
+   PET MODAL
+========================================================= */
+function showPetModal(
+    pet
+) {
+    document.getElementById(
+        "modalIcon"
+    ).textContent =
+        pet.icon;
+    document.getElementById(
+        "modalPetName"
+    ).textContent =
+        pet.name;
+    document.getElementById(
+        "modalRarity"
+    ).textContent =
+        pet.rarity;
+    document.getElementById(
+        "modalMultiplier"
+    ).textContent =
+        Number(pet.multiplier || 1).toFixed(2) +
+        "x";
+    const modalBattleStats = document.getElementById("modalBattleStats");
+    if (modalBattleStats) {
+        const stats = getPetBattleStats(pet);
+        modalBattleStats.textContent = `⚔️ ${stats.attack} Attack • ❤️ ${stats.health} Health${pet.shinyable === false ? " • 🚫 Unshinyable" : ""}`;
+    }
+    document.getElementById(
+        "crateModal"
+    ).classList.add(
+        "show"
+    );
+}
+function closeModal() {
+    document.getElementById(
+        "crateModal"
+    ).classList.remove(
+        "show"
+    );
+}
+/* =========================================================
+   PET EQUIP
+========================================================= */
+function getMaxPetSlots() {
+    return rebirths >= 5 ? 6 : 5;
+}
+function togglePet(
+    id
+) {
+    const index =
+        equippedPets.indexOf(
+            id
+        );
+    if (
+        index !== -1
+    ) {
+        equippedPets.splice(
+            index,
+            1
+        );
+    } else {
+        const maxPetSlots = getMaxPetSlots();
+        if (
+            equippedPets.length >= maxPetSlots
+        ) {
+            alert(
+                `You can equip a maximum of ${maxPetSlots} pets.`
+            );
+            return;
+        }
+        equippedPets.push(
+            id
+        );
+    }
+    saveGame();
+    updateUI();
+}
+/* =========================================================
+   EQUIP BEST
+========================================================= */
+function equipBestPets() {
+    if (!pets.length) {
+        alert("🐾 You don't have any pets yet.");
+        return;
+    }
+
+    const maxSlots = getMaxPetSlots();
+
+    const ranked = [...pets].sort((a, b) => {
+        const aStats = getPetBattleStats(a);
+        const bStats = getPetBattleStats(b);
+
+        // Best = strongest overall combat power first.
+        const powerA =
+            Number(aStats.attack || 0) +
+            Number(aStats.health || 0);
+
+        const powerB =
+            Number(bStats.attack || 0) +
+            Number(bStats.health || 0);
+
+        if (powerB !== powerA) return powerB - powerA;
+
+        const multB = Number(b.multiplier || 1);
+        const multA = Number(a.multiplier || 1);
+
+        if (multB !== multA) return multB - multA;
+
+        return Number(b.level || 1) - Number(a.level || 1);
+    });
+
+    equippedPets = ranked
+        .slice(0, maxSlots)
+        .map(pet => String(pet.id));
+
+    saveGame();
+    updateUI();
+
+    console.log(
+        `⭐ Equipped best ${equippedPets.length} pets:`,
+        ranked.slice(0, maxSlots).map(p => `${p.icon || "🐾"} ${p.name}`)
+    );
+}
+
+/* =========================================================
+   PET RENDER
+========================================================= */
+function renderPets() {
+    const container = document.getElementById("petsContainer");
+    if (!container) return;
+    container.innerHTML = `
+        <div style="grid-column:1/-1;margin-bottom:8px;color:var(--muted);font-weight:700;">
+            Equipped: ${equippedPets.length} / ${getMaxPetSlots()} pet slots${rebirths >= 5 ? " • 6th slot unlocked at Rebirth 5" : " • 6th slot unlocks at Rebirth 5"}
+        </div>`;
+    if (!pets.length) {
+        container.innerHTML = `<div class="empty">🐾 You don't have any pets yet.<br>Open a crate to get your first pet!</div>`;
+        return;
+    }
+    pets.forEach(pet => {
+        const equipped = equippedPets.includes(pet.id);
+        const stats = getPetBattleStats(pet);
+        const card = document.createElement("div");
+        card.className = "pet";
+        card.innerHTML = `
+            <div class="pet-icon">${pet.icon || "🐾"}</div>
+            <div class="pet-info">
+                <div class="pet-name">${escapeHtml(pet.name)}</div>
+                <div class="pet-rarity">${escapeHtml(pet.rarity)} • Level ${stats.level} / ${MAX_PET_LEVEL}${pet.mergeLevel ? ` • Merge ${pet.mergeLevel}` : ""}</div>
+                <div class="pet-multiplier">+${(Number(pet.multiplier || 1) - 1).toFixed(2)} bonus (${Number(pet.multiplier || 1).toFixed(2)}x)</div>
+                <div class="pet-rarity" style="margin-top:6px;">⚔️ ${stats.attack} Attack • ❤️ ${stats.health} Health${pet.shinyable === false ? " • 🚫 Unshinyable" : ""}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+                <button onclick="togglePet('${pet.id}')">${equipped ? "Unequip" : "Equip"}</button>
+                <button onclick="openSendPet('${pet.id}')">📤 Send</button>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+function getMergeGroups() {
+    const groups = new Map();
+    pets.forEach(pet => {
+        const key = [
+            pet.name,
+            pet.rarity,
+            pet.multiplier,
+            pet.mergeLevel || 0
+        ].join("|");
+        if (!groups.has(key)) {
+            groups.set(key, []);
+        }
+        groups.get(key).push(pet);
+    });
+    return groups;
+}
+function getMergedName(pet) {
+    const level =
+        (pet.mergeLevel || 0) + 1;
+    if (level === 1)
+        return `Shiny ${pet.name}`;
+    if (level === 2)
+        return `Mega ${pet.name}`;
+    if (level === 3)
+        return `Ultra ${pet.name}`;
+    return `Omega ${pet.name}`;
+}
+function mergePets(
+    name,
+    rarity,
+    multiplier,
+    mergeLevel
+) {
+    const matches =
+        pets.filter(
+            pet =>
+                pet.name === name &&
+                pet.rarity === rarity &&
+                Number(pet.multiplier) === Number(multiplier) &&
+                (pet.mergeLevel || 0) === mergeLevel
+        );
+    if (matches.length < 2) {
+        alert(
+            "You need 2 identical pets to merge!"
+        );
+        return;
+    }
+    // Every merge costs 1,000 clicks.
+    if (score < 1000) {
+        alert("You need 1,000 clicks to merge pets.");
+        return;
+    }
+    score -= 1000;
+    // 2 identical pets are consumed for 1 stronger pet.
+    const consumed =
+        matches.slice(0, 2);
+    const consumedIds =
+        new Set(
+            consumed.map(
+                pet => pet.id
+            )
+        );
+    pets =
+        pets.filter(
+            pet =>
+                !consumedIds.has(
+                    pet.id
+                )
+        );
+    // Remove consumed copies from the equipped list.
+    equippedPets =
+        equippedPets.filter(
+            id =>
+                !consumedIds.has(id)
+        );
+    const source =
+        consumed[0];
+    const newMergeLevel =
+        mergeLevel + 1;
+    const mergedPet = {
+        id:
+            Date.now().toString() +
+            Math.random()
+                .toString(36)
+                .slice(2),
+        name:
+            getMergedName(source),
+        icon:
+            source.icon,
+        rarity:
+            source.rarity,
+        // Each merge makes the pet 50% stronger.
+        multiplier:
+            Number(
+                (
+                    source.multiplier *
+                    1.5
+                ).toFixed(2)
+            ),
+        attack: getPetBattleStats(source).attack + 6,
+        health: getPetBattleStats(source).health + 60,
+        shinyable: source.shinyable !== false,
+        level:
+            Math.min(
+                MAX_PET_LEVEL,
+                Math.max(1, Number(source.level) || 1)
+            ),
+        exp: 0,
+        mergeLevel:
+            newMergeLevel
+    };
+    pets.push(
+        mergedPet
+    );
+    saveGame();
+    updateUI();
+    showMergeModal(
+        mergedPet
+    );
+}
+function renderMerges() {
+    const container =
+        document.getElementById(
+            "mergeContainer"
+        );
+    if (!container)
+        return;
+    container.innerHTML = "";
+    const groups =
+        getMergeGroups();
+    let mergeable = 0;
+    groups.forEach(
+        group => {
+            if (group.length < 2)
+                return;
+            mergeable++;
+            const pet =
+                group[0];
+            const card =
+                document.createElement(
+                    "div"
+                );
+            card.className =
+                "merge-card";
+            const safeName =
+                JSON.stringify(
+                    pet.name
+                );
+            const safeRarity =
+                JSON.stringify(
+                    pet.rarity
+                );
+            card.innerHTML = `
+                <div class="pet-icon">
+                    ${pet.icon}
+                </div>
+                <div class="pet-info">
+                    <div class="pet-name">
+                        ${pet.name}
+                    </div>
+                    <div class="pet-rarity">
+                        ${pet.rarity}
+                        • ${group.length} copies
+                    </div>
+                    <div class="pet-multiplier">
+                        ${pet.multiplier.toFixed(2)}x
+                        →
+                        ${(pet.multiplier * 1.5).toFixed(2)}x
+                    </div>
+                </div>
+                <button
+                    class="merge-button"
+                    onclick='mergePets(
+                        ${safeName},
+                        ${safeRarity},
+                        ${pet.multiplier},
+                        ${pet.mergeLevel || 0}
+                    )'
+                >
+                    🧬 Merge 2
+                </button>
+            `;
+            container.appendChild(
+                card
+            );
+        }
+    );
+    if (mergeable === 0) {
+        container.innerHTML = `
+            <div
+                class="empty"
+                style="grid-column:1/-1;"
+            >
+                🧬 Get 2 identical pets
+                to unlock a merge.<br>
+                <span
+                    style="font-size:12px;"
+                >
+                    2 identical pets = 1 stronger pet.
+                </span>
+            </div>
+        `;
+    }
+}
+function showMergeModal(
+    pet
+) {
+    document.getElementById(
+        "modalIcon"
+    ).textContent =
+        pet.icon;
+    document.getElementById(
+        "modalPetName"
+    ).textContent =
+        pet.name;
+    document.getElementById(
+        "modalRarity"
+    ).textContent =
+        `${pet.rarity} • Merge Level ${pet.mergeLevel}`;
+    document.getElementById(
+        "modalMultiplier"
+    ).textContent =
+        pet.multiplier.toFixed(2) +
+        "x";
+    document.getElementById(
+        "crateModal"
+    ).classList.add(
+        "show"
+    );
+}
+/* =========================================================
+   REBIRTH
+========================================================= */
+async function performRebirth() {
+    const requirement = getRebirthRequirement();
+    const mythic = hasMythic();
+
+    if (score < requirement) {
+        alert(`You need ${requirement.toLocaleString()} clicks.`);
+        return;
+    }
+
+    if (!mythic) {
+        alert("You need at least 1 Mythic pet.");
+        return;
+    }
+
+    const confirmed = confirm(
+        `Rebirth ${rebirths + 1} will reset your clicks, pets, crates and potion.\n\nContinue?`
+    );
+
+    if (!confirmed) return;
+
+    /*
+       PERMANENT:
+       - rebirths
+       - best score
+       - player name
+
+       RESET:
+       - score
+       - pets
+       - equipped pets
+       - crate progress
+       - potions
+       - fractional clicks
+
+       IMPORTANT:
+       The pet reset is written to Supabase BEFORE another cloud save can
+       run. This prevents old cloud pets from returning after a refresh.
+    */
+
+    rebirths++;
+    score = 0;
+    pets = [];
+    equippedPets = [];
+    // Clear any stale pet selectors immediately after rebirth.
+    if (typeof renderSendPetOptions === "function") renderSendPetOptions();
+    if (typeof renderBattlePetOptions === "function") renderBattlePetOptions();
+    clickProgress = 0;
+    cratesOpened = 0;
+    potionUsed = false;
+    potionEnd = 0;
+    luckPotionEnd = 0;
+    triplePotionEnd = 0;
+    potionType = "double";
+
+    // Cancel any queued save that could race with the rebirth reset.
+    clearTimeout(cloudSaveTimer);
+
+    // Update the local UI/save first, but do NOT queue a cloud save yet.
+    localSaveOnly();
+    updateUI();
+
+    if (currentUser && cloudReady) {
+        try {
+            // Authoritative database reset.
+            const { data: deletedCount, error: clearError } =
+                await sb.rpc("clear_my_pets_for_rebirth");
+
+            if (clearError) throw clearError;
+
+            // Guard against an unexpectedly missing/ineffective reset.
+            const { data: remainingPets, error: verifyError } = await sb
+                .from("player_pets")
+                .select("id")
+                .eq("owner_id", currentUser.id)
+                .limit(1);
+
+            if (verifyError) throw verifyError;
+
+            if ((remainingPets || []).length > 0) {
+                throw new Error("Old cloud pets still exist after rebirth reset.");
+            }
+
+            // Save the new rebirth state only after the old cloud pets are gone.
+            await saveCloudNow();
+
+            console.log(
+                `♻️ Rebirth cloud reset complete. Deleted ${Number(deletedCount) || 0} pet(s).`
+            );
+        } catch (error) {
+            console.error("Rebirth cloud reset failed:", error);
+            alert(
+                "Rebirth was not completed in the cloud.\n\n" +
+                "No new pet was added, and your old cloud pets were left untouched.\n\n" +
+                error.message
+            );
+            return;
+        }
+    }
+
+    alert(
+        `♻️ Rebirth ${rebirths} complete!\n\n` +
+        `Your base click is now +${getBaseClick()}!`
+    );
+}
+/* =========================================================
+   REBIRTH UI
+========================================================= */
+function updateRebirthUI() {
+    const next =
+        rebirths + 1;
+    const requirement =
+        getRebirthRequirement();
+    const mythic =
+        hasMythic();
+    const clicksComplete =
+        score >= requirement;
+    const ready =
+        clicksComplete &&
+        mythic;
+    document.getElementById(
+        "nextRebirthNumber"
+    ).textContent =
+        next;
+    document.getElementById(
+        "rebirthClickRequirement"
+    ).textContent =
+        requirement.toLocaleString();
+    document.getElementById(
+        "rebirthClickProgress"
+    ).textContent =
+        `${score.toLocaleString()} / ${requirement.toLocaleString()}`;
+    const clickRequirement =
+        document.getElementById(
+            "rebirthClickRequirement"
+        );
+    clickRequirement.classList.toggle(
+        "complete",
+        clicksComplete
+    );
+    clickRequirement.classList.toggle(
+        "incomplete",
+        !clicksComplete
+    );
+    const mythicElement =
+        document.getElementById(
+            "rebirthMythicRequirement"
+        );
+    if (mythic) {
+        mythicElement.textContent =
+            "✓ Mythic Owned";
+        mythicElement.className =
+            "requirement-value complete";
+    } else {
+        mythicElement.textContent =
+            "❌ Required";
+        mythicElement.className =
+            "requirement-value incomplete";
+    }
+    document.getElementById(
+        "rebirthNewBase"
+    ).textContent =
+        `+${1 + next}`;
+    document.getElementById(
+        "rebirthCurrent"
+    ).textContent =
+        rebirths;
+    document.getElementById(
+        "rebirthCurrentBase"
+    ).textContent =
+        `+${getBaseClick()}`;
+    document.getElementById(
+        "rebirthNextRequirement"
+    ).textContent =
+        requirement.toLocaleString();
+    const button =
+        document.getElementById(
+            "rebirthButton"
+        );
+    button.disabled =
+        !ready;
+    button.textContent =
+        ready
+        ? `♻️ Rebirth ${next}`
+        : "🔒 Requirements Not Met";
+}
+/* =========================================================
+   ACHIEVEMENTS
+========================================================= */
+function renderAchievements() {
+    const container =
+        document.getElementById(
+            "achievementsContainer"
+        );
+    container.innerHTML = "";
+    ACHIEVEMENTS.forEach(
+        achievement => {
+            const unlocked =
+                achievement.requirement();
+            const card =
+                document.createElement(
+                    "div"
+                );
+            card.className =
+                "achievement" +
+                (
+                    unlocked
+                    ? ""
+                    : " locked"
+                );
+            card.innerHTML = `
+                <div class="achievement-icon">
+                    ${achievement.icon}
+                </div>
+                <strong>
+                    ${achievement.name}
+                </strong>
+                <p>
+                    ${achievement.description}
+                </p>
+                <p style="
+                    margin-top:10px;
+                    color:${
+                        unlocked
+                        ? "#35d07f"
+                        : "#9299b2"
+                    };
+                    font-weight:700;
+                ">
+                    ${
+                        unlocked
+                        ? "✓ Unlocked"
+                        : "🔒 Locked"
+                    }
+                </p>
+            `;
+            container.appendChild(
+                card
+            );
+        }
+    );
+}
+/* =========================================================
+   PET INDEX
+========================================================= */
+function getAllIndexPets() {
+    const list = [];
+    Object.keys(PET_POOL).forEach(rarity => {
+        PET_POOL[rarity].forEach(pet => list.push(pet));
+    });
+    list.push(BLACK_HAT_MAN, WHITE_HAT_MAN);
+    return list;
+}
+function getObtainableIndexPets() {
+    return getAllIndexPets().filter(pet => pet.obtainable !== false);
+}
+function ownsIndexPet(template) {
+    return pets.some(pet => pet.name === template.name);
+}
+function renderPetIndex() {
+    const container = document.getElementById("petIndexContainer");
+    if (!container) return;
+    const obtainable = getObtainableIndexPets();
+    const found = obtainable.filter(ownsIndexPet).length;
+    const progress = document.getElementById("petIndexProgress");
+    const dashProgress = document.getElementById("dashPetIndex");
+    if (progress) progress.textContent = `${found} / ${obtainable.length}`;
+    if (dashProgress) dashProgress.textContent = `${found} / ${obtainable.length}`;
+    container.innerHTML = "";
+    getAllIndexPets().forEach(template => {
+        const owned = ownsIndexPet(template);
+        const card = document.createElement("div");
+        card.className = "achievement" + (owned ? "" : " locked");
+        const isSecret = template === BLACK_HAT_MAN || template === WHITE_HAT_MAN;
+        const label = owned
+            ? "✓ You have this pet"
+            : isSecret
+                ? "🔒 Secret Chest"
+                : "❌ You don't have this pet";
+        const stats = getPetBattleStats(template);
+        card.innerHTML = `
+            <div class="achievement-icon">${template.icon}</div>
+            <h3>${escapeHtml(template.name)}</h3>
+            <div style="color:var(--muted);margin-top:6px;">${escapeHtml(template.rarity)}</div>
+            <div style="color:var(--purple);font-weight:700;margin-top:6px;">${Number(template.multiplier).toFixed(2)}x</div>
+            <div style="color:var(--blue);font-weight:700;margin-top:6px;">⚔️ ${stats.attack} ATK • ❤️ ${stats.health} HP</div>
+            <p style="margin-top:10px;color:${owned ? "var(--green)" : isSecret ? "var(--red)" : "var(--muted)"};font-weight:700;">${label}</p>`;
+        container.appendChild(card);
+    });
+}
+
+/* =========================================================
+   UI
+========================================================= */
+function updateUI() {
+    const multiplier =
+        getMultiplier();
+    const base =
+        getBaseClick();
+    document.getElementById(
+        "dashboardName"
+    ).textContent =
+        playerName;
+    document.getElementById(
+        "dashScore"
+    ).textContent =
+        score.toLocaleString();
+    document.getElementById(
+        "dashBest"
+    ).textContent =
+        best.toLocaleString();
+    updateCoinUI();
+    document.getElementById(
+        "dashPets"
+    ).textContent =
+        pets.length;
+    document.getElementById(
+        "dashRebirths"
+    ).textContent =
+        rebirths;
+    document.getElementById(
+        "dashBaseClick"
+    ).textContent =
+        `+${base}`;
+    document.getElementById(
+        "dashMultiplier"
+    ).textContent =
+        multiplier.toFixed(2) +
+        "x";
+    document.getElementById(
+        "dashRebirthBonus"
+    ).textContent =
+        `+${rebirths}`;
+    const maxPetSlots = getMaxPetSlots();
+    const dashPetSlots = document.getElementById("dashPetSlots");
+    if (dashPetSlots) {
+        dashPetSlots.textContent = `${equippedPets.length} / ${maxPetSlots}`;
+    }
+    document.getElementById(
+        "gameScore"
+    ).textContent =
+        score.toLocaleString();
+    document.getElementById(
+        "gameBaseClick"
+    ).textContent =
+        `+${base}`;
+    document.getElementById(
+        "gameMultiplier"
+    ).textContent =
+        multiplier.toFixed(2) +
+        "x";
+    document.getElementById(
+        "statScore"
+    ).textContent =
+        score.toLocaleString();
+    document.getElementById(
+        "statBest"
+    ).textContent =
+        best.toLocaleString();
+    document.getElementById(
+        "statPets"
+    ).textContent =
+        pets.length;
+    document.getElementById(
+        "statRebirths"
+    ).textContent =
+        rebirths;
+    document.getElementById(
+        "nameInput"
+    ).value =
+        playerName;
+    renderPets();
+    renderMerges();
+    renderCrates();
+    renderAchievements();
+    renderPetIndex();
+    const unlimitedPotionCount = document.getElementById("unlimitedPotionCount");
+    if (unlimitedPotionCount) unlimitedPotionCount.textContent = unlimitedPotions;
+    updatePotion();
+    updateLuckPotion();
+    updateRebirthUI();
+}
+/* =========================================================
+   NAME
+========================================================= */
+document.getElementById(
+    "nameInput"
+).addEventListener(
+    "input",
+    event => {
+        playerName =
+            event.target.value
+                .trim() ||
+            "Player";
+        saveGame();
+        updateUI();
+        if (typeof refreshSecurityAccess === "function") {
+            refreshSecurityAccess();
+        }
+    }
+);
+/* =========================================================
+   RESET
+========================================================= */
+function resetGame() {
+    const confirmed =
+        confirm(
+            "Are you sure? This will delete ALL game progress, including Rebirths."
+        );
+    if (!confirmed)
+        return;
+    score = 0;
+    best = 0;
+    playerName =
+        "Player";
+    // Premium/account Coins are intentionally preserved during a game-progress reset.
+    pets = [];
+    equippedPets = [];
+    // Also clear selectors when using the full Reset Game button.
+    if (typeof renderSendPetOptions === "function") renderSendPetOptions();
+    if (typeof renderBattlePetOptions === "function") renderBattlePetOptions();
+    clickProgress = 0;
+    cratesOpened = 0;
+    potionUsed = false;
+    potionEnd = 0;
+    luckPotionEnd = 0;
+    triplePotionEnd = 0;
+    potionType = "double";
+    petIndexRewardClaimed = false;
+    unlimitedPotions = 0;
+    unlimitedPotionBonus = 0;
+    rebirths = 0;
+    saveGame();
+    updateUI();
+    alert(
+        "Game completely reset!"
+    );
+}
+/* =========================================================
+   CLICK BUTTON
+========================================================= */
+document.getElementById(
+    "clickButton"
+).addEventListener(
+    "click",
+    doClick
+);
+/* =========================================================
+   POTION TIMER
+========================================================= */
+setInterval(
+    () => {
+        updatePotion();
+        updateLuckPotion();
+    },
+    250
+);
+
+/* =========================================================
+   CONNECTION INFO
+   Shows only this player's own connection details.
+========================================================= */
+function detectPlatformName() {
+    try {
+        const platform =
+            navigator.userAgentData?.platform ||
+            navigator.platform ||
+            "Unknown";
+
+        const value = String(platform).toLowerCase();
+
+        if (value.includes("win")) return "Windows";
+        if (value.includes("mac")) return "macOS";
+        if (value.includes("linux")) return "Linux";
+        if (value.includes("android")) return "Android";
+        if (value.includes("iphone") || value.includes("ipad") || value.includes("ios")) return "iOS";
+
+        return String(platform);
+    } catch (_) {
+        return "Unknown";
+    }
+}
+
+function detectBrowserName() {
+    try {
+        const ua = navigator.userAgent || "";
+
+        if (/Edg\//i.test(ua)) return "Microsoft Edge";
+        if (/OPR\//i.test(ua)) return "Opera";
+        if (/Chrome\//i.test(ua) && !/Edg\//i.test(ua)) return "Google Chrome";
+        if (/Firefox\//i.test(ua)) return "Mozilla Firefox";
+        if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) return "Safari";
+        if (/MSIE |Trident\//i.test(ua)) return "Internet Explorer";
+
+        return "Unknown browser";
+    } catch (_) {
+        return "Unknown browser";
+    }
+}
+
+async function loadConnectionInfo() {
+    const ipEl = document.getElementById("publicIpValue");
+    const platformEl = document.getElementById("platformValue");
+    const browserEl = document.getElementById("browserValue");
+    const statusEl = document.getElementById("connectionInfoStatus");
+
+    if (!ipEl || !platformEl || !browserEl) return;
+
+    platformEl.textContent = detectPlatformName();
+    browserEl.textContent = detectBrowserName();
+    ipEl.textContent = "Checking...";
+
+    if (statusEl) {
+        statusEl.textContent = "Checking your public IP...";
+    }
+
+    try {
+        const response = await fetch("https://api64.ipify.org?format=json", {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("IP lookup failed");
+        }
+
+        const data = await response.json();
+        const ip = String(data?.ip || "").trim();
+
+        if (!ip) {
+            throw new Error("No IP returned");
+        }
+
+        ipEl.textContent = ip;
+        if (statusEl) {
+            statusEl.textContent = "✓ Connection information updated.";
+        }
+    } catch (error) {
+        ipEl.textContent = "Unavailable";
+        if (statusEl) {
+            statusEl.textContent = "Could not detect the public IP. Check your connection or try again.";
+        }
+        console.warn("Public IP lookup failed:", error);
+    }
+}
+
+/* =========================================================
+   START
+========================================================= */
+updateUI();
+loadConnectionInfo();
+</script>
+
+<script>
+/* =========================================================
+   PET WORLD ONLINE LAYER
+========================================================= */
+const SUPABASE_URL = "https://hqkbqwtaotdsxpkeeniq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_S0hU6cGAG88ZyghY9UpO6A_LlVqhc4-";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false
+    }
+});
+
+/* =========================================================
+   PET WORLD CLOUD / ANONYMOUS MULTIPLAYER
+   No login, signup, password or logout UI.
+========================================================= */
+let currentUser = null;
+let chatChannel = null;
+let transferChannel = null;
+let cloudSaveTimer = null;
+let cloudReady = false;
+let petTypeMap = new Map();
+let lastChatAt = 0;
+let battleChannel = null;
+let securityAdmin = false;
+const SECURITY_ADMIN_NAME = "P_10hP";
+
+function cleanUsername(v) {
+    return String(v || "")
+        .replace(/[^A-Za-z0-9_]/g, "")
+        .slice(0, 20) || "Player";
+}
+
+function getOnlineUsername() {
+    try {
+        let saved = localStorage.getItem("petWorldOnlineName");
+        if (saved) return cleanUsername(saved);
+        saved = "Player_" + Math.floor(1000 + Math.random() * 9000);
+        localStorage.setItem("petWorldOnlineName", saved);
+        return saved;
+    } catch (_) {
+        return "Player_" + Math.floor(1000 + Math.random() * 9000);
+    }
+}
+
+function gameState() {
+    // Coins are server-authoritative and intentionally NOT stored in game_state.
+    return {
+        score,
+        best,
+        playerName,
+        equippedPets,
+        clickProgress,
+        cratesOpened,
+        potionUsed,
+        potionEnd,
+        luckPotionEnd,
+        potionType,
+        triplePotionEnd,
+        rebirths
+    };
+}
+
+function applyGameState(st) {
+    if (!st || typeof st !== "object") return;
+
+    score = Number(st.score) || 0;
+    best = Number(st.best) || 0;
+    playerName = String(st.playerName || playerName || "Player");
+    // Do not read Coins from game_state. Supabase players.coins is authoritative.
+    equippedPets = Array.isArray(st.equippedPets) ? st.equippedPets : [];
+    clickProgress = Number(st.clickProgress) || 0;
+    cratesOpened = Number(st.cratesOpened) || 0;
+    potionUsed = !!st.potionUsed;
+    potionEnd = Number(st.potionEnd) || 0;
+    luckPotionEnd = Number(st.luckPotionEnd) || 0;
+    potionType = st.potionType || "double";
+    triplePotionEnd = Number(st.triplePotionEnd) || 0;
+    rebirths = Number(st.rebirths) || 0;
+
+    petIndexRewardClaimed = false;
+    unlimitedPotions = 0;
+    unlimitedPotionBonus = 0;
+
+    equippedPets = equippedPets.map(String);
+}
+
+function localSaveOnly() {
+    localStorage.setItem("click_score", score);
+    localStorage.setItem("click_best", best);
+    localStorage.setItem("click_player_name", playerName);
+    localStorage.setItem("petworld_coins", Math.max(0, Math.floor(coins)));
+    localStorage.setItem("click_pets", JSON.stringify(pets));
+    localStorage.setItem("click_equipped", JSON.stringify(equippedPets));
+    localStorage.setItem("click_progress", clickProgress);
+    localStorage.setItem("click_crates_opened", cratesOpened);
+    localStorage.setItem("click_potion_used", potionUsed);
+    localStorage.setItem("click_potion_end", potionEnd);
+    localStorage.setItem("click_luck_potion_end", luckPotionEnd);
+    localStorage.setItem("click_potion_type", potionType);
+    localStorage.setItem("click_triple_potion_end", triplePotionEnd);
+    localStorage.setItem("click_pet_index_reward", petIndexRewardClaimed);
+    localStorage.setItem("click_unlimited_potions", unlimitedPotions);
+    localStorage.setItem("click_unlimited_potion_bonus", unlimitedPotionBonus);
+    localStorage.setItem("click_rebirths", rebirths);
+}
+
+async function loadPetTypes() {
+    const { data, error } = await sb
+        .from("pet_types")
+        .select("id,name,rarity,multiplier,icon");
+
+    if (error) throw error;
+
+    petTypeMap = new Map(
+        (data || []).map(type => [String(type.name).toLowerCase(), type])
+    );
+}
+
+function getPetTypeForPet(pet) {
+    if (!pet) return null;
+    return petTypeMap.get(String(pet.name || "").toLowerCase()) || null;
+}
+
+function normalizePetIds() {
+    const used = new Set();
+    const remap = new Map();
+
+    pets = pets.map(pet => {
+        const oldId = String(pet.id || "");
+        const valid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(oldId);
+        let id = valid ? oldId : crypto.randomUUID();
+
+        while (used.has(id)) id = crypto.randomUUID();
+        used.add(id);
+
+        if (id !== oldId) remap.set(oldId, id);
+
+        const normalized = {
+            ...pet,
+            id,
+            level: Math.min(MAX_PET_LEVEL, Math.max(1, Number(pet.level) || 1)),
+            mergeLevel: Number(pet.mergeLevel) || 0,
+            shinyable: pet.shinyable !== false
+        };
+        const stats = getPetBattleStats(normalized);
+        normalized.attack = stats.attack;
+        normalized.health = stats.health;
+        return normalized;
+    });
+
+    equippedPets = equippedPets
+        .map(id => remap.get(String(id)) || String(id))
+        .filter(id => pets.some(p => p.id === id));
+}
+
+async function ensurePlayer(username) {
+    const safeName = cleanUsername(username);
+
+    let result = await sb
+        .from("players")
+        .upsert({
+            id: currentUser.id,
+            username: safeName,
+            game_state: gameState()
+        }, { onConflict: "id" })
+        .select("id,username,game_state,coins")
+        .single();
+
+    if (result.error && result.error.code === "23505") {
+        const fallback = "Player_" + Math.floor(100000 + Math.random() * 900000);
+        result = await sb
+            .from("players")
+            .upsert({
+                id: currentUser.id,
+                username: fallback,
+                game_state: gameState()
+            }, { onConflict: "id" })
+            .select("id,username,game_state,coins")
+            .single();
+    }
+
+    if (result.error) throw result.error;
+
+    playerName = result.data.username;
+    try { localStorage.setItem("petWorldOnlineName", playerName); } catch (_) {}
+    return result.data;
+}
+
+async function loadOwnedPets() {
+    if (!currentUser) return;
+
+    const { data, error } = await sb
+        .from("player_pets")
+        .select("id,pet_type_id,level,pet_data")
+        .eq("owner_id", currentUser.id);
+
+    if (error) throw error;
+
+    pets = (data || [])
+        .map(row => {
+            const type = row.pet_data || {};
+            const pet = {
+                ...type,
+                id: row.id,
+                level: Math.min(MAX_PET_LEVEL, Math.max(1, Number(row.level || type.level) || 1)),
+                mergeLevel: Number(type.mergeLevel) || 0
+            };
+            const stats = getPetBattleStats(pet);
+            return { ...pet, attack: Number(pet.attack) || stats.attack, health: Number(pet.health) || stats.health, shinyable: pet.shinyable !== false };
+        })
+        .filter(p => p && p.name);
+
+    const ids = new Set(pets.map(p => p.id));
+    equippedPets = equippedPets.filter(id => ids.has(id));
+
+    localSaveOnly();
+    // Keep all pet-selection UI synchronized with the authoritative cloud inventory.
+    renderSendPetOptions();
+    renderBattlePetOptions();
+}
+
+async function syncPetRows() {
+    if (!currentUser) return;
+
+    normalizePetIds();
+
+    const rows = [];
+
+    for (const pet of pets) {
+        const type = getPetTypeForPet(pet);
+
+        if (!type) {
+            console.warn("Skipping pet without matching pet_type:", pet.name);
+            continue;
+        }
+
+        rows.push({
+            id: pet.id,
+            owner_id: currentUser.id,
+            pet_type_id: type.id,
+            level: Math.min(MAX_PET_LEVEL, Math.max(1, Number(pet.level) || 1)),
+            pet_data: {
+                ...pet,
+                id: pet.id,
+                level: Math.min(MAX_PET_LEVEL, Math.max(1, Number(pet.level) || 1)),
+                attack: getPetBattleStats(pet).attack,
+                health: getPetBattleStats(pet).health,
+                shinyable: pet.shinyable !== false
+            }
+        });
+    }
+
+    if (!rows.length) return;
+
+    const { error } = await sb
+        .from("player_pets")
+        .upsert(rows, { onConflict: "id" });
+
+    if (error) {
+        console.error("Pet cloud sync failed:", error.message);
+    }
+}
+
+async function loadCloudGame(username) {
+    if (!currentUser) return;
+
+    const { data, error } = await sb
+        .from("players")
+        .select("username,game_state,coins")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (error) throw error;
+
+    if (!data) {
+        const created = await ensurePlayer(username);
+        coins = Math.max(0, Math.floor(Number(created?.coins) || 0));
+    } else {
+        playerName = data.username || username;
+        coins = Math.max(0, Math.floor(Number(data.coins) || 0));
+        if (data.game_state && Object.keys(data.game_state).length) {
+            applyGameState(data.game_state);
+        }
+    }
+
+    await loadOwnedPets();
+
+    if (!pets.length && rebirths === 0) {
+        /* Starter pet is for brand-new players only. A rebirth intentionally
+           leaves the player with zero pets, and that state must survive refresh. */
+        const starter = getPetTypeForPet({name: "Happy Dog"});
+        if (starter) {
+            const id = crypto.randomUUID();
+            const pet = {
+                id,
+                name: starter.name,
+                icon: starter.icon || "🐶",
+                rarity: starter.rarity,
+                multiplier: Number(starter.multiplier),
+                attack: getPetBattleStats(starter).attack,
+                health: getPetBattleStats(starter).health,
+                shinyable: true,
+                level: 1,
+                mergeLevel: 0
+            };
+            pets = [pet];
+            await syncPetRows();
+        }
+    }
+
+    cloudReady = true;
+    localSaveOnly();
+    updateUI();
+}
+
+async function saveCloudNow() {
+    if (!currentUser || !cloudReady) return;
+
+    normalizePetIds();
+    localSaveOnly();
+
+    const { error } = await sb
+        .from("players")
+        .update({
+            username: playerName,
+            game_state: gameState()
+        })
+        .eq("id", currentUser.id);
+
+    if (error) {
+        console.error("Cloud save failed:", error.message);
+        return;
+    }
+
+    await syncPetRows();
+}
+
+function queueCloudSave() {
+    localSaveOnly();
+    if (!currentUser || !cloudReady) return;
+
+    clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = setTimeout(saveCloudNow, 700);
+}
+
+/* Make every original save also save to Supabase. */
+const petWorldOriginalSave = saveGame;
+saveGame = function() {
+    petWorldOriginalSave();
+    queueCloudSave();
+};
+
+function setChatStatus(text) {
+    const el = document.getElementById("chatStatus");
+    if (el) el.textContent = text;
+}
+
+function addChatMessage(msg) {
+    const box = document.getElementById("chatMessages");
+    if (!box || !msg) return;
+
+    const row = document.createElement("div");
+    row.className = "chat-message";
+
+    const name = document.createElement("strong");
+    name.textContent = msg.username || "Player";
+
+    const time = document.createElement("small");
+    time.textContent = new Date(msg.time || Date.now()).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+
+    const text = document.createElement("div");
+    text.style.marginTop = "4px";
+    text.style.wordBreak = "break-word";
+    text.textContent = String(msg.text || "").slice(0, 250);
+
+    row.append(name, time, text);
+    box.appendChild(row);
+
+    while (box.children.length > 100) {
+        box.removeChild(box.firstChild);
+    }
+
+    box.scrollTop = box.scrollHeight;
+}
+
+async function sendGlobalChat() {
+    if (!chatChannel) {
+        setChatStatus("Connecting to global chat...");
+        return;
+    }
+
+    const input = document.getElementById("chatInput");
+    if (!input) return;
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (Date.now() - lastChatAt < 1000) {
+        setChatStatus("Slow down a little...");
+        return;
+    }
+
+    lastChatAt = Date.now();
+    input.value = "";
+
+    const msg = {
+        username: playerName,
+        text: text.slice(0, 250),
+        time: Date.now()
+    };
+
+    addChatMessage(msg);
+
+    const result = await chatChannel.send({
+        type: "broadcast",
+        event: "chat",
+        payload: msg
+    });
+
+    if (result?.error) {
+        setChatStatus("Chat error: " + result.error.message);
+    }
+}
+
+async function loadPlayersForSending() {
+    const select = document.getElementById("sendPetPlayer");
+    if (!select || !currentUser) return;
+
+    select.innerHTML = '<option value="">Loading players...</option>';
+
+    const { data, error } = await sb
+        .from("players")
+        .select("id,username")
+        .neq("id", currentUser.id)
+        .order("username");
+
+    if (error) {
+        select.innerHTML = '<option value="">Could not load players</option>';
+        return;
+    }
+
+    select.innerHTML = '<option value="">Choose a player...</option>';
+
+    (data || []).forEach(player => {
+        const option = document.createElement("option");
+        option.value = player.id;
+        option.textContent = player.username;
+        select.appendChild(option);
+    });
+}
+
+function renderSendPetOptions() {
+    const select = document.getElementById("sendPetSelect");
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Choose a pet...</option>';
+
+    pets.forEach(pet => {
+        const option = document.createElement("option");
+        option.value = pet.id;
+        option.textContent = `${pet.icon || "🐾"} ${pet.name} • Level ${pet.level} • ${Number(pet.multiplier || 1).toFixed(2)}x`;
+        select.appendChild(option);
+    });
+}
+
+async function confirmSendPet() {
+    if (!currentUser) {
+        setMultiStatus("Connecting to Pet World...", "sendPetStatus");
+        return;
+    }
+
+    const petId = document.getElementById("sendPetSelect")?.value;
+    const receiverId = document.getElementById("sendPetPlayer")?.value;
+
+    if (!petId || !receiverId) {
+        setMultiStatus("Choose a pet and a player.", "sendPetStatus");
+        return;
+    }
+
+    const pet = pets.find(p => p.id === petId);
+    if (!pet) {
+        setMultiStatus("Pet not found.", "sendPetStatus");
+        return;
+    }
+
+    /* Ensure the database has the pet with the required pet_type_id. */
+    await syncPetRows();
+
+    const { error } = await sb
+        .from("pet_transfers")
+        .insert({
+            sender_id: currentUser.id,
+            receiver_id: receiverId,
+            pet_id: pet.id,
+            status: "pending"
+        });
+
+    if (error) {
+        console.error("Transfer failed:", error);
+        setMultiStatus("Transfer failed: " + error.message, "sendPetStatus");
+        return;
+    }
+
+    setMultiStatus(`📤 ${pet.name} transfer request sent!`, "sendPetStatus");
+}
+
+function setMultiStatus(message, id) {
+    const el = document.getElementById(id || "sendPetStatus");
+    if (el) el.textContent = message;
+}
+
+async function loadTransfers() {
+    if (!currentUser) return;
+
+    const box = document.getElementById("transferRequests");
+    if (!box) return;
+
+    /*
+       The receiver is NOT the owner of the pet yet, so normal
+       player_pets RLS prevents the receiver from reading pet_data.
+       Use the security-definer RPC instead.
+    */
+    const { data, error } = await sb.rpc(
+        "get_my_pending_pet_transfers"
+    );
+
+    if (error) {
+        console.error("Incoming transfer load failed:", error);
+        box.innerHTML =
+            `<div class="empty">${escapeHtml(error.message)}</div>`;
+        return;
+    }
+
+    if (!data || !data.length) {
+        box.innerHTML =
+            '<div class="empty">No pending pet requests.</div>';
+        return;
+    }
+
+    box.innerHTML = "";
+
+    data.forEach(transfer => {
+        const pet = transfer.pet_data || {};
+
+        const card = document.createElement("div");
+        card.className = "transfer-card";
+
+        const icon = document.createElement("div");
+        icon.style.fontSize = "40px";
+        icon.textContent = pet.icon || "🐾";
+
+        const info = document.createElement("div");
+
+        const name = document.createElement("strong");
+        name.textContent = pet.name || "Pet";
+
+        const sender = document.createElement("div");
+        sender.className = "tiny-muted";
+        sender.textContent =
+            `From ${transfer.sender_username || "Player"}`;
+
+        const level = document.createElement("div");
+        level.className = "tiny-muted";
+        level.textContent =
+            `Level ${Number(pet.level || 1)}`;
+
+        info.append(name, sender, level);
+
+        const actions = document.createElement("div");
+        actions.className = "transfer-actions";
+
+        const accept = document.createElement("button");
+        accept.className = "primary-btn";
+        accept.textContent = "✅ Accept";
+        accept.onclick = () => acceptTransfer(transfer.id);
+
+        const decline = document.createElement("button");
+        decline.className = "secondary-btn";
+        decline.textContent = "❌ Decline";
+        decline.onclick = () => declineTransfer(transfer.id);
+
+        actions.append(accept, decline);
+        card.append(icon, info, actions);
+        box.appendChild(card);
+    });
+}
+
+async function acceptTransfer(id) {
+    const { data, error } = await sb.rpc("accept_pet_transfer", {
+        p_transfer_id: id
+    });
+
+    if (error) {
+        alert("Could not accept transfer: " + error.message);
+        return;
+    }
+
+    await loadOwnedPets();
+    await saveCloudNow();
+    renderSendPetOptions();
+    await loadTransfers();
+    updateUI();
+    alert("🐾 Pet received!");
+}
+
+async function declineTransfer(id) {
+    const { error } = await sb.rpc("decline_pet_transfer", {
+        p_transfer_id: id
+    });
+
+    if (error) {
+        alert("Could not decline transfer: " + error.message);
+        return;
+    }
+
+    await loadTransfers();
+}
+
+async function handleAcceptedOutgoingTransfer(transfer) {
+    if (!currentUser || transfer?.sender_id !== currentUser.id) return;
+    if (transfer.status !== "accepted") return;
+
+    await loadOwnedPets();
+    await saveCloudNow();
+    renderSendPetOptions();
+    updateUI();
+    setMultiStatus("📤 Your pet was accepted and transferred.", "sendPetStatus");
+}
+
+function renderBattlePetOptions() {
+    const mine = document.getElementById("battleMyPet");
+    if (!mine) return;
+    const current = mine.value;
+    mine.innerHTML = '<option value="">Choose your pet...</option>';
+    [...pets]
+        .sort((a,b) => {
+            const sa = getPetBattleStats(a), sb = getPetBattleStats(b);
+            return (sb.attack + sb.health) - (sa.attack + sa.health);
+        })
+        .forEach(pet => {
+            const s = getPetBattleStats(pet);
+            const opt = document.createElement("option");
+            opt.value = pet.id;
+            opt.textContent = `${pet.icon || "🐾"} ${pet.name} • ⚔️${s.attack} • ❤️${s.health}`;
+            mine.appendChild(opt);
+        });
+    if ([...mine.options].some(o => o.value === current)) mine.value = current;
+    updateBattlePreview();
+}
+
+async function loadBattlePlayers() {
+    const select = document.getElementById("battleOpponent");
+    if (!select || !currentUser) return;
+    const current = select.value;
+    select.innerHTML = '<option value="">Loading players...</option>';
+    const { data, error } = await sb.from("players").select("id,username").neq("id", currentUser.id).order("username");
+    if (error) {
+        select.innerHTML = '<option value="">Could not load players</option>';
+        return;
+    }
+    select.innerHTML = '<option value="">Choose an opponent...</option>';
+    (data || []).forEach(player => {
+        const opt = document.createElement("option");
+        opt.value = player.id;
+        opt.textContent = player.username || "Player";
+        select.appendChild(opt);
+    });
+    if ([...select.options].some(o => o.value === current)) select.value = current;
+}
+
+function updateBattlePreview() {
+    const box = document.getElementById("battleMyPreview");
+    if (!box) return;
+    const pet = pets.find(p => p.id === document.getElementById("battleMyPet")?.value);
+    if (!pet) { box.textContent = "Choose your pet to preview Attack and Health."; return; }
+    const s = getPetBattleStats(pet);
+    const heal = Math.max(1, Math.floor(s.attack / 2));
+    box.innerHTML = `<div><div style="font-size:46px">${pet.icon || "🐾"}</div><strong>${escapeHtml(pet.name)}</strong><div class="battle-stat-grid"><div class="battle-stat">⚔️ <strong>${s.attack}</strong><span>Attack</span></div><div class="battle-stat">❤️ <strong>${s.health}</strong><span>Max Health</span></div></div><div class="tiny-muted" style="margin-top:9px">Heal per turn: +${heal} HP • Level ${s.level} • ${escapeHtml(pet.rarity)}${pet.shinyable === false ? " • 🚫 Unshinyable" : ""}</div></div>`;
+}
+
+async function sendBattleChallenge() {
+    if (!currentUser) { setMultiStatus("Connecting to Pet World...", "battleSendStatus"); return; }
+    const opponentId = document.getElementById("battleOpponent")?.value;
+    const petId = document.getElementById("battleMyPet")?.value;
+    if (!opponentId || !petId) { setMultiStatus("Choose an opponent and your pet.", "battleSendStatus"); return; }
+    const pet = pets.find(p => p.id === petId);
+    if (!pet) { setMultiStatus("Pet not found.", "battleSendStatus"); return; }
+    await syncPetRows();
+    const { data, error } = await sb.rpc("challenge_pet", { p_opponent_id: opponentId, p_challenger_pet_id: pet.id });
+    if (error) { console.error(error); setMultiStatus("Battle failed: " + error.message, "battleSendStatus"); return; }
+    setMultiStatus(`⚔️ Challenge sent with ${pet.name}!`, "battleSendStatus");
+    console.log("Battle challenge created:", data);
+}
+
+async function loadBattleRequests() {
+    if (!currentUser) return;
+    const box = document.getElementById("battleRequests");
+    if (!box) return;
+    const { data, error } = await sb.rpc("get_my_pending_pet_battles");
+    if (error) { console.error(error); box.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`; return; }
+    if (!data || !data.length) { box.innerHTML = '<div class="empty">No pending battle requests.</div>'; return; }
+    box.innerHTML = "";
+    data.forEach(challenge => {
+        const pet = challenge.challenger_pet_data || {};
+        const s = getPetBattleStats(pet);
+        const card = document.createElement("div");
+        card.className = "battle-request";
+        card.innerHTML = `<div style="font-size:44px">${pet.icon || "🐾"}</div><div><strong>${escapeHtml(challenge.challenger_username || "Player")} challenges you!</strong><div class="tiny-muted">Their pet: ${escapeHtml(pet.name || "Pet")} • ⚔️ ${s.attack} • ❤️ ${s.health}</div><div class="battle-warning">⚠️ The losing pet is permanently transferred to the winner.</div></div><div class="battle-request-actions"><select class="player-select" id="defenderPet_${challenge.id}"></select><button class="primary-btn" onclick="acceptPetBattle('${challenge.id}')">✅ Enter PvP Ground</button><button class="secondary-btn" onclick="declinePetBattle('${challenge.id}')">❌ Decline</button></div>`;
+        box.appendChild(card);
+        const select = card.querySelector(`#defenderPet_${challenge.id}`);
+        [...pets]
+            .sort((a,b) => {
+                const sa = getPetBattleStats(a), sb = getPetBattleStats(b);
+                return (sb.attack + sb.health) - (sa.attack + sa.health);
+            })
+            .forEach(myPet => {
+                const ps = getPetBattleStats(myPet);
+                const opt = document.createElement("option");
+                opt.value = myPet.id;
+                opt.textContent = `${myPet.icon || "🐾"} ${myPet.name} • ⚔️${ps.attack} • ❤️${ps.health}`;
+                select.appendChild(opt);
+            });
+    });
+}
+
+function battlePetCard(state, side) {
+    const isMine = side === "challenger" ? state.challenger_id === currentUser?.id : state.opponent_id === currentUser?.id;
+    const pet = side === "challenger" ? (state.challenger_pet || {}) : (state.defender_pet || {});
+    const hp = Number(side === "challenger" ? state.challenger_hp : state.opponent_hp) || 0;
+    const maxHp = Number(side === "challenger" ? state.challenger_max_hp : state.opponent_max_hp) || 1;
+    const attack = Number(pet.attack || 0);
+    const heal = Math.max(1, Math.floor(attack / 2));
+    const percent = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+    return `<div class="battle-side"><div class="pet-icon">${pet.icon || "🐾"}</div><strong>${escapeHtml(pet.name || "Pet")}</strong><div class="tiny-muted">${isMine ? "YOU" : "OPPONENT"}</div><div class="battle-stat-grid"><div class="battle-stat">⚔️ <strong>${attack}</strong><span>Attack</span></div><div class="battle-stat">❤️ <strong>${hp}</strong><span>HP</span></div></div><div class="hp-wrap"><div class="hp-label"><span>❤️ Health</span><span>${hp} / ${maxHp}</span></div><div class="hp-bar"><div class="hp-fill" style="width:${percent}%"></div></div></div><div class="tiny-muted" style="margin-top:8px">Heal: +${heal} HP</div></div>`;
+}
+
+function battleLogHTML(log) {
+    if (!Array.isArray(log) || !log.length) return '<div class="empty">No actions yet. Make the first move.</div>';
+    return log.slice().reverse().map(entry => {
+        if (entry.message) return escapeHtml(entry.message);
+        if (entry.action === "attack") return `⚔️ ${escapeHtml(entry.player_name || "Player")} attacked for ${Number(entry.amount || 0)} damage.`;
+        if (entry.action === "heal") return `❤️ ${escapeHtml(entry.player_name || "Player")} healed for ${Number(entry.amount || 0)} HP.`;
+        return escapeHtml(JSON.stringify(entry));
+    }).join("<br>");
+}
+
+function renderActiveBattle(state) {
+    const panel = document.getElementById("activeBattlePanel");
+    const ground = document.getElementById("activeBattleGround");
+    if (!panel || !ground) return;
+
+    if (!state) {
+        window.activeBattleId = null;
+        panel.style.display = "none";
+        ground.innerHTML = "";
+        return;
+    }
+
+    panel.style.display = "block";
+
+    const active = state.status === "active";
+    const myTurn = active && state.turn_user_id === currentUser?.id;
+    const turnText = !active
+        ? "🏁 Battle finished"
+        : myTurn
+            ? "🔥 YOUR TURN — choose wisely"
+            : "⏳ Opponent's turn...";
+
+    let controls = "";
+    if (active && myTurn) {
+        controls = `<div class="battle-actions"><button class="primary-btn" onclick="sendBattleAction('attack')">⚔️ ATTACK</button><button class="secondary-btn" onclick="sendBattleAction('heal')">❤️ HEAL</button></div><div class="battle-action-hint">Attack uses your pet's Attack. Heal restores half your pet's Attack, capped at max HP.</div>`;
+    } else if (active) {
+        controls = `<div class="battle-action-hint">Wait for the other player to finish their turn.</div>`;
+    }
+
+    const resultBanner = !active && state.winner_id
+        ? `<div class="battle-ended ${state.winner_id === currentUser?.id ? 'battle-win' : 'battle-loss'}">${state.winner_id === currentUser?.id ? '🏆 YOU WON — you received the losing pet.' : '💀 YOU LOST — your selected pet was permanently transferred.'}</div>`
+        : "";
+
+    ground.innerHTML = `
+        <div class="battle-ground">
+            ${battlePetCard(state, "challenger")}
+            <div class="battle-vs">VS</div>
+            ${battlePetCard(state, "defender")}
+        </div>
+        <div class="battle-turn">${turnText}</div>
+        ${controls}
+        ${resultBanner}
+        <div class="section-title" style="margin-top:16px">📜 Battle Log</div>
+        <div class="battle-live-log">${battleLogHTML(state.battle_log)}</div>
+    `;
+}
+
+async function loadActiveBattle() {
+    if (!currentUser) return;
+    const { data, error } = await sb.rpc("get_my_active_pet_battle");
+    if (error) {
+        console.error("Active battle load failed:", error);
+        return;
+    }
+    window.activeBattleId = data?.battle_id || null;
+    renderActiveBattle(data || null);
+    if (data?.status === "resolved") {
+        showBattleResult(data.result_data || data);
+        await loadOwnedPets();
+        renderBattlePetOptions();
+        updateUI();
+    }
+}
+
+async function sendBattleAction(action) {
+    if (!currentUser) return;
+    const buttonNodes = document.querySelectorAll("#activeBattleGround .battle-actions button");
+    buttonNodes.forEach(btn => btn.classList.add("battle-action-disabled"));
+    const { data, error } = await sb.rpc("pet_battle_action", {
+        p_battle_id: window.activeBattleId,
+        p_action: action
+    });
+    if (error) {
+        buttonNodes.forEach(btn => btn.classList.remove("battle-action-disabled"));
+        alert("Battle action failed: " + error.message);
+        await loadActiveBattle();
+        return;
+    }
+    renderActiveBattle(data);
+    if (data?.status === "resolved") {
+        showBattleResult(data.result_data || data);
+        await loadOwnedPets();
+        renderBattlePetOptions();
+        await loadBattleRequests();
+        updateUI();
+    }
+}
+
+function showBattleResult(result) {
+    const box = document.getElementById("battleResultBox");
+    if (!box || !result) return;
+    const winner = result.winner_pet || {};
+    const loser = result.loser_pet || {};
+    const youWon = result.winner_id === currentUser?.id;
+    const rounds = Array.isArray(result.battle_log) ? result.battle_log : [];
+    box.innerHTML = `<div class="battle-result"><div class="battle-fighter"><div style="font-size:54px">${winner.icon || "🏆"}</div><strong>${escapeHtml(winner.name || "Winner")}</strong><div class="tiny-muted">⚔️ ${Number(winner.attack || 0)} • ❤️ ${Number(winner.remaining_health || 0)} HP left</div></div><div class="battle-vs">VS</div><div class="battle-fighter"><div style="font-size:54px">${loser.icon || "💀"}</div><strong>${escapeHtml(loser.name || "Loser")}</strong><div class="tiny-muted">⚔️ ${Number(loser.attack || 0)} • ❤️ 0 HP</div></div></div><div class="${youWon ? "battle-win" : "battle-loss"}" style="margin-top:12px;">${youWon ? "🏆 You won! You received the losing pet." : "💀 You lost. Your pet was transferred to the winner."}</div><div class="battle-log">${rounds.map(r => r.message ? escapeHtml(r.message) : `Round ${Number(r.round || 0)}: ${escapeHtml(r.attacker || "Pet")} ${escapeHtml(r.action || "acted")} ${Number(r.amount || r.damage || 0)}`).join("<br>")}</div>`;
+}
+
+async function acceptPetBattle(id) {
+    if (!currentUser) return;
+    const petId = document.getElementById(`defenderPet_${id}`)?.value;
+    if (!petId) { alert("Choose a pet to defend."); return; }
+    const chosen = pets.find(p => p.id === petId);
+    if (!chosen) { alert("That pet is no longer available."); return; }
+    if (!confirm(`Enter the PvP Ground with ${chosen.name}? On your turns you can Attack or Heal. If your pet loses, it is permanently transferred to the winner.`)) return;
+    await syncPetRows();
+    const { data, error } = await sb.rpc("accept_pet_battle", { p_battle_id: id, p_defender_pet_id: petId });
+    if (error) { alert("Could not start battle: " + error.message); return; }
+    window.activeBattleId = data?.battle_id || id;
+    renderActiveBattle(data);
+    await loadBattleRequests();
+}
+
+async function declinePetBattle(id) {
+    const { error } = await sb.rpc("decline_pet_battle", { p_battle_id: id });
+    if (error) { alert("Could not decline battle: " + error.message); return; }
+    await loadBattleRequests();
+}
+
+async function handleBattleUpdate(row) {
+    if (!row || !currentUser) return;
+    if (row.challenger_id !== currentUser.id && row.opponent_id !== currentUser.id) return;
+    await loadActiveBattle();
+    await loadBattleRequests();
+}
+
+document.getElementById("battleMyPet")?.addEventListener("change", updateBattlePreview);
+
+async function startMultiplayer() {
+    if (!currentUser) return;
+
+    if (chatChannel) await sb.removeChannel(chatChannel);
+    if (transferChannel) await sb.removeChannel(transferChannel);
+    if (battleChannel) await sb.removeChannel(battleChannel);
+
+    chatChannel = sb.channel("pet-world-global-chat");
+
+    chatChannel.on("broadcast", { event: "chat" }, ({ payload }) => {
+        if (payload) addChatMessage(payload);
+    });
+
+    await chatChannel.subscribe(status => {
+        if (status === "SUBSCRIBED") {
+            setChatStatus("🟢 Global chat connected");
+        } else {
+            setChatStatus("Connection: " + status);
+        }
+    });
+
+    transferChannel = sb.channel("pet-world-transfers-" + currentUser.id);
+
+    transferChannel.on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "pet_transfers",
+        filter: `receiver_id=eq.${currentUser.id}`
+    }, () => {
+        loadTransfers();
+    });
+
+    transferChannel.on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "pet_transfers",
+        filter: `sender_id=eq.${currentUser.id}`
+    }, payload => {
+        handleAcceptedOutgoingTransfer(payload.new);
+    });
+
+    await transferChannel.subscribe();
+
+    battleChannel = sb.channel("pet-world-battles-" + currentUser.id);
+    battleChannel.on("postgres_changes", { event: "INSERT", schema: "public", table: "pet_battles", filter: `opponent_id=eq.${currentUser.id}` }, () => loadBattleRequests());
+    battleChannel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "pet_battles", filter: `challenger_id=eq.${currentUser.id}` }, payload => handleBattleUpdate(payload.new));
+    battleChannel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "pet_battles", filter: `opponent_id=eq.${currentUser.id}` }, payload => handleBattleUpdate(payload.new));
+    await battleChannel.subscribe();
+
+    await loadPlayersForSending();
+    renderSendPetOptions();
+    await loadTransfers();
+    await loadBattlePlayers();
+    renderBattlePetOptions();
+    await loadBattleRequests();
+    await loadActiveBattle();
+}
+
+/* Original game reset also clears cloud state. */
+const petWorldOriginalResetGame = resetGame;
+resetGame = function() {
+    petWorldOriginalResetGame();
+    queueCloudSave();
+};
+
+/* Keep cloud pets synchronized after merges/crates. */
+const petWorldOriginalMergePets = mergePets;
+mergePets = function(...args) {
+    const before = pets.length;
+    petWorldOriginalMergePets(...args);
+    normalizePetIds();
+    if (pets.length !== before || currentUser) {
+        queueCloudSave();
+        renderSendPetOptions();
+    }
+};
+
+const petWorldOriginalOpenCrate = openCrate;
+openCrate = function(index) {
+    const before = pets.length;
+    petWorldOriginalOpenCrate(index);
+    normalizePetIds();
+    if (pets.length !== before) {
+        queueCloudSave();
+        renderSendPetOptions();
+    }
+};
+
+async function refreshSecurityAccess() {
+    const nav = document.getElementById("securityNavBtn");
+    const access = document.getElementById("securityAccessStatus");
+    const logsCard = document.getElementById("securityLogsCard");
+    const setupCard = document.getElementById("securitySetupCard");
+
+    securityAdmin = false;
+
+    if (!currentUser) {
+        if (nav) nav.style.display = "none";
+        if (access) access.textContent = "Connect to Pet World first.";
+        return;
+    }
+
+    try {
+        const { data, error } = await sb.rpc("get_security_admin_status");
+        if (error) throw error;
+
+        securityAdmin = data === true && playerName === SECURITY_ADMIN_NAME;
+
+        if (nav) {
+            nav.style.display = securityAdmin ? "" : "none";
+        }
+
+        if (access) {
+            access.textContent = securityAdmin
+                ? "✅ Authorized as P_10hP. Security logs are available."
+                : "🔒 Security access denied.";
+        }
+
+        if (logsCard) logsCard.style.display = securityAdmin ? "block" : "none";
+        if (setupCard) setupCard.style.display = (!securityAdmin && playerName === SECURITY_ADMIN_NAME) ? "block" : "none";
+
+        if (securityAdmin) {
+            await loadSecurityLogs();
+        }
+    } catch (error) {
+        if (nav) nav.style.display = "none";
+        if (logsCard) logsCard.style.display = "none";
+        if (setupCard) setupCard.style.display = playerName === SECURITY_ADMIN_NAME ? "block" : "none";
+        if (access) access.textContent = "⚠️ Security authorization check failed: " + (error?.message || error);
+        console.warn("Security authorization check failed:", error);
+    }
+}
+
+async function logCurrentConnection() {
+    if (!currentUser) return;
+
+    try {
+        await sb.rpc("log_player_connection", {
+            p_platform: detectPlatformName(),
+            p_browser: detectBrowserName()
+        });
+    } catch (error) {
+        console.warn("Connection logging failed:", error);
+    }
+}
+
+async function loadSecurityLogs() {
+    if (!securityAdmin) return;
+
+    const box = document.getElementById("securityLogs");
+    if (!box) return;
+
+    box.textContent = "Loading security logs...";
+
+    try {
+        const { data, error } = await sb.rpc("get_security_connection_logs", {
+            p_limit: 200
+        });
+
+        if (error) throw error;
+
+        if (!Array.isArray(data) || data.length === 0) {
+            box.innerHTML = '<div class="empty">No connection logs yet.</div>';
+            return;
+        }
+
+        const rows = data.map(row => {
+            const when = row.connected_at
+                ? new Date(row.connected_at).toLocaleString()
+                : "Unknown";
+
+            return `
+                <tr>
+                    <td>${escapeHtml(row.username || "Player")}</td>
+                    <td><code>${escapeHtml(row.public_ip || "Unavailable")}</code></td>
+                    <td>${escapeHtml(row.platform || "Unknown")}</td>
+                    <td>${escapeHtml(row.browser || "Unknown")}</td>
+                    <td>${escapeHtml(when)}</td>
+                </tr>
+            `;
+        }).join("");
+
+        box.innerHTML = `
+            <table style="width:100%;min-width:720px;border-collapse:collapse;">
+                <thead>
+                    <tr style="text-align:left;border-bottom:1px solid var(--border);">
+                        <th style="padding:11px;">Player</th>
+                        <th style="padding:11px;">Public IP</th>
+                        <th style="padding:11px;">Platform</th>
+                        <th style="padding:11px;">Browser</th>
+                        <th style="padding:11px;">Last Logged</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    } catch (error) {
+        box.innerHTML = `<div class="empty">❌ ${escapeHtml(error?.message || String(error))}</div>`;
+    }
+}
+
+async function copySecurityAdminId() {
+    if (!currentUser) return;
+
+    const id = String(currentUser.id);
+    try {
+        await navigator.clipboard.writeText(id);
+        const status = document.getElementById("securitySetupStatus");
+        if (status) status.textContent = "✅ Auth ID copied: " + id;
+    } catch (_) {
+        const status = document.getElementById("securitySetupStatus");
+        if (status) status.textContent = "Your Auth ID: " + id;
+    }
+}
+
+window.refreshSecurityAccess = refreshSecurityAccess;
+window.loadSecurityLogs = loadSecurityLogs;
+window.logCurrentConnection = logCurrentConnection;
+window.copySecurityAdminId = copySecurityAdminId;
+
+async function initPetWorld() {
+    try {
+        const sessionResult = await sb.auth.getSession();
+        let user = sessionResult?.data?.session?.user || null;
+
+        /* Silent anonymous account — no login/signup/password UI. */
+        if (!user) {
+            const result = await sb.auth.signInAnonymously();
+            if (result.error) throw result.error;
+            user = result.data?.user || null;
+        }
+
+        if (!user) throw new Error("Anonymous account could not be created.");
+
+        currentUser = user;
+
+        await loadPetTypes();
+
+        const { data: player, error: playerError } = await sb
+            .from("players")
+            .select("id,username,game_state")
+            .eq("id", currentUser.id)
+            .maybeSingle();
+
+        if (playerError) throw playerError;
+
+        if (!player) {
+            playerName = getOnlineUsername();
+            await ensurePlayer(playerName);
+        } else {
+            playerName = player.username || getOnlineUsername();
+        }
+
+        await loadCloudGame(playerName);
+        await startMultiplayer();
+        await refreshSecurityAccess();
+        await logCurrentConnection();
+        updateUI();
+
+    } catch (error) {
+        console.error("Pet World startup failed:", error);
+        const status = document.getElementById("chatStatus");
+        if (status) {
+            status.textContent = "⚠️ Multiplayer connection failed: " + (error.message || error);
+        }
+        /* The game itself still remains playable locally. */
+        cloudReady = false;
+    }
+}
+
+/* Visible starting page. */
+(function initVisiblePage() {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+        page.style.display = "none";
+    });
+
+    const dashboard = document.getElementById("dashboard");
+    if (dashboard) {
+        dashboard.classList.add("active");
+        dashboard.style.display = "block";
+    }
+})();
+
+/* Refresh connection logging every 5 minutes without exposing IPs to players. */
+setInterval(() => {
+    if (currentUser) logCurrentConnection();
+}, 300000);
+
+/* Start silently. */
+setTimeout(initPetWorld, 0);
+</script>
+</body>
+</html>
